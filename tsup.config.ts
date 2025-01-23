@@ -5,7 +5,7 @@ export default defineConfig({
     outDir: "dist",
     sourcemap: true,
     clean: true,
-    format: ["esm"], // Using ESM (ECMAScript Modules) format
+    format: ["esm"], // Ensure you're targeting CommonJS
     external: [
         "dotenv", // Externalize dotenv to prevent bundling
         "fs", // Externalize fs to use Node.js built-in module
@@ -16,6 +16,6 @@ export default defineConfig({
         "http",
         "agentkeepalive",
         "zod",
-        "@elizaos/core"        // Add other modules you want to externalize
+        "@elizaos/core", // Add other modules you want to externalize
     ],
 });
