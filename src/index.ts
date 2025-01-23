@@ -1,3 +1,6 @@
+import * as dotenv from "dotenv";
+dotenv.config();
+
 export * from "./services/index.ts";
 
 import { Plugin } from "@elizaos/core";
