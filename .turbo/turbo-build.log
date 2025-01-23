@@ -12,7 +12,7 @@
 [34mESM[39m Build start
 [34mCJS[39m Build start
 
-[90m[[90m12:44:14 AM[90m][39m [43m[30m WARN [39m[49m [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1m"import.meta" is not available with the "cjs" output format and will be empty[0m [empty-import-meta]
+[90m[[90m4:52:49 PM[90m][39m [43m[30m WARN [39m[49m [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1m"import.meta" is not available with the "cjs" output format and will be empty[0m [empty-import-meta]
 
     src/services/transcription.ts:21:33:
 [37m      21 │ const __filename = fileURLToPath([32mimport.meta[37m.url);
@@ -22,25 +22,25 @@
 
 
 
-[32mESM[39m [1mdist/node-ponyfill-DYLVY4S4.js     [22m[32m183.00 B[39m
+[32mESM[39m [1mdist/fileFromPath-7KZSYTN5.js      [22m[32m4.97 KB[39m
 [32mESM[39m [1mdist/chunk-DUPH4QXL.js             [22m[32m85.60 KB[39m
-[32mESM[39m [1mdist/chunk-H3AJBOWU.js             [22m[32m2.25 KB[39m
-[32mESM[39m [1mdist/wrapper-RHWPOSWW.js           [22m[32m130.02 KB[39m
-[32mESM[39m [1mdist/fileFromPath-IAEHYVFL.js      [22m[32m4.97 KB[39m
-[32mESM[39m [1mdist/index.js                      [22m[32m505.11 KB[39m
-[32mESM[39m [1mdist/chunk-ELQIQFE3.js             [22m[32m582.50 KB[39m
-[32mESM[39m [1mdist/chunk-H3AJBOWU.js.map         [22m[32m71.00 B[39m
-[32mESM[39m [1mdist/node-ponyfill-DYLVY4S4.js.map [22m[32m71.00 B[39m
+[32mESM[39m [1mdist/node-ponyfill-XYSXBJLI.js     [22m[32m183.00 B[39m
+[32mESM[39m [1mdist/chunk-PLDDJCW6.js             [22m[32m2.10 KB[39m
+[32mESM[39m [1mdist/wrapper-IANJ3KLP.js           [22m[32m130.02 KB[39m
+[32mESM[39m [1mdist/index.js                      [22m[32m338.70 KB[39m
+[32mESM[39m [1mdist/chunk-W2OETGYU.js             [22m[32m582.50 KB[39m
+[32mESM[39m [1mdist/fileFromPath-7KZSYTN5.js.map  [22m[32m7.86 KB[39m
+[32mESM[39m [1mdist/node-ponyfill-XYSXBJLI.js.map [22m[32m71.00 B[39m
 [32mESM[39m [1mdist/chunk-DUPH4QXL.js.map         [22m[32m141.19 KB[39m
-[32mESM[39m [1mdist/wrapper-RHWPOSWW.js.map       [22m[32m209.83 KB[39m
-[32mESM[39m [1mdist/fileFromPath-IAEHYVFL.js.map  [22m[32m7.86 KB[39m
-[32mESM[39m [1mdist/index.js.map                  [22m[32m1.22 MB[39m
-[32mESM[39m [1mdist/chunk-ELQIQFE3.js.map         [22m[32m378.84 KB[39m
-[32mESM[39m ⚡️ Build success in 396ms
-[32mCJS[39m [1mdist/index.cjs     [22m[32m1.29 MB[39m
-[32mCJS[39m [1mdist/index.cjs.map [22m[32m1.95 MB[39m
-[32mCJS[39m ⚡️ Build success in 397ms
+[32mESM[39m [1mdist/chunk-PLDDJCW6.js.map         [22m[32m71.00 B[39m
+[32mESM[39m [1mdist/wrapper-IANJ3KLP.js.map       [22m[32m209.83 KB[39m
+[32mESM[39m [1mdist/chunk-W2OETGYU.js.map         [22m[32m378.84 KB[39m
+[32mESM[39m [1mdist/index.js.map                  [22m[32m955.69 KB[39m
+[32mESM[39m ⚡️ Build success in 211ms
+[32mCJS[39m [1mdist/index.cjs     [22m[32m1.13 MB[39m
+[32mCJS[39m [1mdist/index.cjs.map [22m[32m1.66 MB[39m
+[32mCJS[39m ⚡️ Build success in 212ms
 DTS Build start
-DTS ⚡️ Build success in 1925ms
-DTS dist/index.d.ts  2.90 KB
-DTS dist/index.d.cts 2.90 KB
+DTS ⚡️ Build success in 1428ms
+DTS dist/index.d.ts  2.62 KB
+DTS dist/index.d.cts 2.62 KB
