@@ -1,13 +1,11 @@
 import {
   require_node_ponyfill
-} from "./chunk-CZYHFOM7.js";
+} from "./chunk-WNHUUMDV.js";
 import {
   __commonJS,
-  __export,
-  __reExport,
   __require,
   __toESM
-} from "./chunk-RZ55PUNP.js";
+} from "./chunk-PLDDJCW6.js";
 
 // ../../node_modules/capsolver-npm/node_modules/axios/lib/helpers/bind.js
 var require_bind = __commonJS({
@@ -13322,18 +13320,7 @@ import { settings } from "@elizaos/core";
 import { ModelClass, ServiceType } from "@elizaos/core";
 import { stringToUuid } from "@elizaos/core";
 import { PlaywrightBlocker } from "@cliqz/adblocker-playwright";
-
-// ../../node_modules/playwright/index.mjs
-var playwright_exports = {};
-__export(playwright_exports, {
-  default: () => playwright_default
-});
-__reExport(playwright_exports, playwright_core_star);
-import * as playwright_core_star from "playwright-core";
-import playwright from "playwright-core";
-var playwright_default = playwright;
-
-// src/services/browser.ts
+import { chromium } from "playwright";
 import { elizaLogger } from "@elizaos/core";
 async function generateSummary(runtime, text) {
   text = await trimTokens(text, 1e5, runtime);
@@ -13393,7 +13380,7 @@ var BrowserService = class _BrowserService extends Service {
   }
   async initializeBrowser() {
     if (!this.browser) {
-      this.browser = await playwright_exports.chromium.launch({
+      this.browser = await chromium.launch({
         headless: true,
         args: [
           "--disable-dev-shm-usage",
@@ -13902,7 +13889,7 @@ import {
 import { Service as Service3, ServiceType as ServiceType3 } from "@elizaos/core";
 import { exec } from "child_process";
 
-// node_modules/formdata-node/lib/esm/FormData.js
+// ../../node_modules/formdata-node/lib/esm/FormData.js
 import { inspect } from "util";
 
 // ../../node_modules/web-streams-polyfill/dist/ponyfill.mjs
@@ -15711,10 +15698,10 @@ function Cr(e2) {
 }
 Object.defineProperties(TransformStreamDefaultController.prototype, { enqueue: { enumerable: true }, error: { enumerable: true }, terminate: { enumerable: true }, desiredSize: { enumerable: true } }), n(TransformStreamDefaultController.prototype.enqueue, "enqueue"), n(TransformStreamDefaultController.prototype.error, "error"), n(TransformStreamDefaultController.prototype.terminate, "terminate"), "symbol" == typeof e.toStringTag && Object.defineProperty(TransformStreamDefaultController.prototype, e.toStringTag, { value: "TransformStreamDefaultController", configurable: true });
 
-// node_modules/formdata-node/lib/esm/isFunction.js
+// ../../node_modules/formdata-node/lib/esm/isFunction.js
 var isFunction = (value) => typeof value === "function";
 
-// node_modules/formdata-node/lib/esm/blobHelpers.js
+// ../../node_modules/formdata-node/lib/esm/blobHelpers.js
 var CHUNK_SIZE = 65536;
 async function* clonePart(part) {
   const end = part.byteOffset + part.byteLength;
@@ -15780,7 +15767,7 @@ function* sliceBlob(blobParts, blobSize, start = 0, end) {
   }
 }
 
-// node_modules/formdata-node/lib/esm/Blob.js
+// ../../node_modules/formdata-node/lib/esm/Blob.js
 var __classPrivateFieldGet = function(receiver, state, kind, f2) {
   if (kind === "a" && !f2) throw new TypeError("Private accessor was defined without a getter");
   if (typeof state === "function" ? receiver !== state || !f2 : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
@@ -15888,7 +15875,7 @@ Object.defineProperties(Blob2.prototype, {
   arrayBuffer: { enumerable: true }
 });
 
-// node_modules/formdata-node/lib/esm/File.js
+// ../../node_modules/formdata-node/lib/esm/File.js
 var __classPrivateFieldSet2 = function(receiver, state, value, kind, f2) {
   if (kind === "m") throw new TypeError("Private method is not writable");
   if (kind === "a" && !f2) throw new TypeError("Private accessor was defined without a setter");
@@ -15933,18 +15920,18 @@ var File = class extends Blob2 {
   }
 };
 
-// node_modules/formdata-node/lib/esm/isFile.js
+// ../../node_modules/formdata-node/lib/esm/isFile.js
 var isFile = (value) => value instanceof File;
 
-// node_modules/formdata-node/lib/esm/isBlob.js
+// ../../node_modules/formdata-node/lib/esm/isBlob.js
 var isBlob = (value) => value instanceof Blob2;
 
-// node_modules/formdata-node/lib/esm/deprecateConstructorEntries.js
+// ../../node_modules/formdata-node/lib/esm/deprecateConstructorEntries.js
 import { deprecate } from "util";
 var deprecateConstructorEntries = deprecate(() => {
 }, 'Constructor "entries" argument is not spec-compliant and will be removed in next major release.');
 
-// node_modules/formdata-node/lib/esm/FormData.js
+// ../../node_modules/formdata-node/lib/esm/FormData.js
 var __classPrivateFieldGet3 = function(receiver, state, kind, f2) {
   if (kind === "a" && !f2) throw new TypeError("Private accessor was defined without a getter");
   if (typeof state === "function" ? receiver !== state || !f2 : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
@@ -16440,7 +16427,7 @@ var AbstractLiveClient = class extends AbstractClient {
       return;
     }
     if (isBun()) {
-      import("./wrapper-BZVJEXKC.js").then(({ default: WS }) => {
+      import("./wrapper-IANJ3KLP.js").then(({ default: WS }) => {
         this.conn = new WS(requestUrl, {
           headers: this.headers
         });
@@ -16459,7 +16446,7 @@ var AbstractLiveClient = class extends AbstractClient {
         this.conn = null;
       }
     });
-    import("./wrapper-BZVJEXKC.js").then(({ default: WS }) => {
+    import("./wrapper-IANJ3KLP.js").then(({ default: WS }) => {
       this.conn = new WS(requestUrl, void 0, {
         headers: this.headers
       });
@@ -16629,7 +16616,7 @@ var fetchWithAuth = (apiKey, customFetch) => {
 };
 var resolveResponse = () => __awaiter2(void 0, void 0, void 0, function* () {
   if (typeof Response === "undefined") {
-    return (yield import("./node-ponyfill-FKB5N3U4.js")).Response;
+    return (yield import("./node-ponyfill-SD3BQ5BM.js")).Response;
   }
   return Response;
 });

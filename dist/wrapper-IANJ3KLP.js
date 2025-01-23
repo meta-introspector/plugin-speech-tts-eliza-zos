@@ -2,7 +2,7 @@ import {
   __commonJS,
   __require,
   __toESM
-} from "./chunk-RZ55PUNP.js";
+} from "./chunk-PLDDJCW6.js";
 
 // ../../node_modules/ws/lib/stream.js
 var require_stream = __commonJS({
@@ -3886,4 +3886,4 @@ export {
   export_createWebSocketStream as createWebSocketStream,
   wrapper_default as default
 };
-//# sourceMappingURL=wrapper-BZVJEXKC.js.map
+//# sourceMappingURL=wrapper-IANJ3KLP.js.map
