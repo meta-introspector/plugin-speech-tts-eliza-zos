@@ -1,17 +1,14 @@
+export * from "./services/index.ts";
 
 import { Plugin } from "@elizaos/core";
 
 import { describeImage } from "./actions/describe-image.ts";
 import {
-    SpeechService
-} from "./services/speech.ts";
+    SpeechService,
+    TranscriptionService,
+} from "./services/index.ts";
 
-import { TranscriptionService } from "./services/transcription.ts";
-;
-export type NodePlugin = ReturnType<typeof createNodePlugin>;
-
-export function createNodePlugin() {
-    return {
+export const speechTTS: Plugin = {
         name: "default",
         description: "Default plugin, with basic actions and evaluators",
         services: [
@@ -19,5 +16,7 @@ export function createNodePlugin() {
             new TranscriptionService(),
         ],
         actions: [describeImage],
-    } as const satisfies Plugin;
-}
+    }
+    
+export default speechTTS;
+

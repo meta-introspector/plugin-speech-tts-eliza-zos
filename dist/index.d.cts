@@ -1,6 +1,5 @@
-import * as _elizaos_core from '@elizaos/core';
-import { Service, ISpeechService, ServiceType, IAgentRuntime, ITranscriptionService } from '@elizaos/core';
 import { Readable } from 'node:stream';
+import { Service, ISpeechService, ServiceType, IAgentRuntime, ITranscriptionService, Plugin } from '@elizaos/core';
 
 declare class SpeechService extends Service implements ISpeechService {
     static serviceType: ServiceType;
@@ -66,12 +65,6 @@ declare class TranscriptionService extends Service implements ITranscriptionServ
     transcribeLocally(audioBuffer: ArrayBuffer): Promise<string | null>;
 }
 
-type NodePlugin = ReturnType<typeof createNodePlugin>;
-declare function createNodePlugin(): {
-    readonly name: "default";
-    readonly description: "Default plugin, with basic actions and evaluators";
-    readonly services: [SpeechService, TranscriptionService];
-    readonly actions: [_elizaos_core.Action];
-};
+declare const speechTTS: Plugin;
 
-export { type NodePlugin, createNodePlugin };
+export { SpeechService, TranscriptionService, speechTTS as default, speechTTS };
