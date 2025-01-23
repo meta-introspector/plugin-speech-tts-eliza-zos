@@ -10,58 +10,17 @@
 [34mCLI[39m Target: esnext
 [34mCLI[39m Cleaning output folder
 [34mESM[39m Build start
-[32mESM[39m [1mdist/wrapper-BZVJEXKC.js           [22m[32m130.02 KB[39m
-[32mESM[39m [1mdist/node-ponyfill-FKB5N3U4.js     [22m[32m183.00 B[39m
-[32mESM[39m [1mdist/chunk-RZ55PUNP.js             [22m[32m2.26 KB[39m
-[32mESM[39m [1mdist/index.js                      [22m[32m584.28 KB[39m
-[32mESM[39m [1mdist/chunk-CZYHFOM7.js             [22m[32m582.44 KB[39m
-[32mESM[39m [1mdist/wrapper-BZVJEXKC.js.map       [22m[32m209.83 KB[39m
-[32mESM[39m [1mdist/node-ponyfill-FKB5N3U4.js.map [22m[32m71.00 B[39m
-[32mESM[39m [1mdist/chunk-RZ55PUNP.js.map         [22m[32m71.00 B[39m
-[32mESM[39m [1mdist/chunk-CZYHFOM7.js.map         [22m[32m378.84 KB[39m
-[32mESM[39m [1mdist/index.js.map                  [22m[32m989.90 KB[39m
-[32mESM[39m ⚡️ Build success in 546ms
+[32mESM[39m [1mdist/node-ponyfill-SD3BQ5BM.js     [22m[32m183.00 B[39m
+[32mESM[39m [1mdist/chunk-PLDDJCW6.js             [22m[32m2.10 KB[39m
+[32mESM[39m [1mdist/wrapper-IANJ3KLP.js           [22m[32m130.02 KB[39m
+[32mESM[39m [1mdist/index.js                      [22m[32m583.92 KB[39m
+[32mESM[39m [1mdist/chunk-WNHUUMDV.js             [22m[32m582.44 KB[39m
+[32mESM[39m [1mdist/node-ponyfill-SD3BQ5BM.js.map [22m[32m71.00 B[39m
+[32mESM[39m [1mdist/chunk-PLDDJCW6.js.map         [22m[32m71.00 B[39m
+[32mESM[39m [1mdist/wrapper-IANJ3KLP.js.map       [22m[32m209.83 KB[39m
+[32mESM[39m [1mdist/chunk-WNHUUMDV.js.map         [22m[32m378.84 KB[39m
+[32mESM[39m [1mdist/index.js.map                  [22m[32m989.09 KB[39m
+[32mESM[39m ⚡️ Build success in 248ms
 DTS Build start
-src/services/browser.ts(187,57): error TS2345: Argument of type 'import("/Users/gdesign/developer-projects/laborales/upstreet/eliza-private/node_modules/playwright/node_modules/playwright-core/types/types").Page' is not assignable to parameter of type 'import("/Users/gdesign/developer-projects/laborales/upstreet/eliza-private/node_modules/playwright-core/types/types").Page'.
-  The types returned by 'evaluateHandle(...)' are incompatible between these types.
-    Type 'Promise<import("/Users/gdesign/developer-projects/laborales/upstreet/eliza-private/node_modules/playwright/node_modules/playwright-core/types/types").ElementHandle<any>>' is not assignable to type 'Promise<import("/Users/gdesign/developer-projects/laborales/upstreet/eliza-private/node_modules/playwright-core/types/types").ElementHandle<any>>'.
-      Type 'import("/Users/gdesign/developer-projects/laborales/upstreet/eliza-private/node_modules/playwright/node_modules/playwright-core/types/types").ElementHandle<any>' is not assignable to type 'import("/Users/gdesign/developer-projects/laborales/upstreet/eliza-private/node_modules/playwright-core/types/types").ElementHandle<any>'.
-        The types returned by '$(...)' are incompatible between these types.
-          Type 'Promise<ElementHandleForTag<any>>' is not assignable to type 'Promise<ElementHandle<SVGElement | HTMLElement>>'.
-            Type 'ElementHandleForTag<any>' is not assignable to type 'ElementHandle<SVGElement | HTMLElement>'.
-              Types of property 'screenshot' are incompatible.
-                Type '(options?: { animations?: "disabled" | "allow"; caret?: "initial" | "hide"; mask?: import("/Users/gdesign/developer-projects/laborales/upstreet/eliza-private/node_modules/playwright/node_modules/playwright-core/types/types").Locator[]; ... 7 more ...; type?: "png" | "jpeg"; }) => Promise<...>' is not assignable to type '(options?: { animations?: "disabled" | "allow"; caret?: "initial" | "hide"; mask?: import("/Users/gdesign/developer-projects/laborales/upstreet/eliza-private/node_modules/playwright-core/types/types").Locator[]; ... 7 more ...; type?: "png" | "jpeg"; }) => Promise<...>'.
-                  Types of parameters 'options' and 'options' are incompatible.
-                    Type '{ animations?: "disabled" | "allow"; caret?: "initial" | "hide"; mask?: import("/Users/gdesign/developer-projects/laborales/upstreet/eliza-private/node_modules/playwright-core/types/types").Locator[]; ... 7 more ...; type?: "png" | "jpeg"; }' is not assignable to type '{ animations?: "disabled" | "allow"; caret?: "initial" | "hide"; mask?: import("/Users/gdesign/developer-projects/laborales/upstreet/eliza-private/node_modules/playwright/node_modules/playwright-core/types/types").Locator[]; ... 7 more ...; type?: "png" | "jpeg"; }'.
-                      Types of property 'mask' are incompatible.
-                        Type 'import("/Users/gdesign/developer-projects/laborales/upstreet/eliza-private/node_modules/playwright-core/types/types").Locator[]' is not assignable to type 'import("/Users/gdesign/developer-projects/laborales/upstreet/eliza-private/node_modules/playwright/node_modules/playwright-core/types/types").Locator[]'.
-                          Type 'import("/Users/gdesign/developer-projects/laborales/upstreet/eliza-private/node_modules/playwright-core/types/types").Locator' is not assignable to type 'import("/Users/gdesign/developer-projects/laborales/upstreet/eliza-private/node_modules/playwright/node_modules/playwright-core/types/types").Locator'.
-                            The types returned by 'evaluateHandle(...)' are incompatible between these types.
-                              Type 'Promise<import("/Users/gdesign/developer-projects/laborales/upstreet/eliza-private/node_modules/playwright-core/types/types").ElementHandle<any>>' is not assignable to type 'Promise<import("/Users/gdesign/developer-projects/laborales/upstreet/eliza-private/node_modules/playwright/node_modules/playwright-core/types/types").ElementHandle<any>>'.
-                                Type 'import("/Users/gdesign/developer-projects/laborales/upstreet/eliza-private/node_modules/playwright-core/types/types").ElementHandle<any>' is not assignable to type 'import("/Users/gdesign/developer-projects/laborales/upstreet/eliza-private/node_modules/playwright/node_modules/playwright-core/types/types").ElementHandle<any>'.
-                                  Types of property 'screenshot' are incompatible.
-                                    Type '(options?: { animations?: "disabled" | "allow"; caret?: "initial" | "hide"; mask?: import("/Users/gdesign/developer-projects/laborales/upstreet/eliza-private/node_modules/playwright-core/types/types").Locator[]; ... 7 more ...; type?: "png" | "jpeg"; }) => Promise<...>' is not assignable to type '(options?: { animations?: "disabled" | "allow"; caret?: "initial" | "hide"; mask?: import("/Users/gdesign/developer-projects/laborales/upstreet/eliza-private/node_modules/playwright/node_modules/playwright-core/types/types").Locator[]; ... 7 more ...; type?: "png" | "jpeg"; }) => Promise<...>'.
-                                      Types of parameters 'options' and 'options' are incompatible.
-                                        Type '{ animations?: "disabled" | "allow"; caret?: "initial" | "hide"; mask?: import("/Users/gdesign/developer-projects/laborales/upstreet/eliza-private/node_modules/playwright/node_modules/playwright-core/types/types").Locator[]; ... 7 more ...; type?: "png" | "jpeg"; }' is not assignable to type '{ animations?: "disabled" | "allow"; caret?: "initial" | "hide"; mask?: import("/Users/gdesign/developer-projects/laborales/upstreet/eliza-private/node_modules/playwright-core/types/types").Locator[]; ... 7 more ...; type?: "png" | "jpeg"; }'.
-                                          Types of property 'mask' are incompatible.
-                                            Type 'import("/Users/gdesign/developer-projects/laborales/upstreet/eliza-private/node_modules/playwright/node_modules/playwright-core/types/types").Locator[]' is not assignable to type 'import("/Users/gdesign/developer-projects/laborales/upstreet/eliza-private/node_modules/playwright-core/types/types").Locator[]'.
-                                              Property 'ariaSnapshot' is missing in type 'import("/Users/gdesign/developer-projects/laborales/upstreet/eliza-private/node_modules/playwright/node_modules/playwright-core/types/types").Locator' but required in type 'import("/Users/gdesign/developer-projects/laborales/upstreet/eliza-private/node_modules/playwright-core/types/types").Locator'.
-
-[31mError: error occurred in dts build
-    at Worker.<anonymous> (/Users/gdesign/developer-projects/laborales/upstreet/eliza-private/node_modules/tsup/dist/index.js:1541:26)
-    at Worker.emit (node:events:513:28)
-    at MessagePort.<anonymous> (node:internal/worker:267:53)
-    at [nodejs.internal.kHybridDispatch] (node:internal/event_target:827:20)
-    at MessagePort.<anonymous> (node:internal/per_context/messageport:23:28)[39m
-DTS Build error
-RollupError: [plugin dts] src/services/browser.ts: Failed to compile. Check the logs above.
-    at getRollupError (/Users/gdesign/developer-projects/laborales/upstreet/eliza-private/node_modules/tsup/node_modules/rollup/dist/shared/parseAst.js:285:41)
-    at Object.error (/Users/gdesign/developer-projects/laborales/upstreet/eliza-private/node_modules/tsup/node_modules/rollup/dist/shared/parseAst.js:281:42)
-    at Object.error (/Users/gdesign/developer-projects/laborales/upstreet/eliza-private/node_modules/tsup/node_modules/rollup/dist/shared/rollup.js:888:32)
-    at Object.error (/Users/gdesign/developer-projects/laborales/upstreet/eliza-private/node_modules/tsup/node_modules/rollup/dist/shared/rollup.js:20904:42)
-    at generateDtsFromTs (/Users/gdesign/developer-projects/laborales/upstreet/eliza-private/node_modules/tsup/dist/rollup.js:8000:22)
-    at /Users/gdesign/developer-projects/laborales/upstreet/eliza-private/node_modules/tsup/dist/rollup.js:8007:59
-    at _nullishCoalesce (/Users/gdesign/developer-projects/laborales/upstreet/eliza-private/node_modules/tsup/dist/rollup.js:1:473)
-    at Object.transform (/Users/gdesign/developer-projects/laborales/upstreet/eliza-private/node_modules/tsup/dist/rollup.js:8007:18)
-    at /Users/gdesign/developer-projects/laborales/upstreet/eliza-private/node_modules/tsup/node_modules/rollup/dist/shared/rollup.js:1073:40
-[41m[30m ELIFECYCLE [39m[49m [31mCommand failed with exit code 1.[39m
+DTS ⚡️ Build success in 3816ms
+DTS dist/index.d.ts 3.80 KB
