@@ -1,13 +1,13 @@
-export * from "./services/index.ts";
 
 import { Plugin } from "@elizaos/core";
 
 import { describeImage } from "./actions/describe-image.ts";
 import {
-    SpeechService,
-    TranscriptionService,
-} from "./services/index.ts";
+    SpeechService
+} from "./services/speech.ts";
 
+import { TranscriptionService } from "./services/transcription.ts";
+;
 export type NodePlugin = ReturnType<typeof createNodePlugin>;
 
 export function createNodePlugin() {

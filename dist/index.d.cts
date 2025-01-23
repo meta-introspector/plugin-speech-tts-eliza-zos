@@ -74,4 +74,4 @@ declare function createNodePlugin(): {
     readonly actions: [_elizaos_core.Action];
 };
 
-export { type NodePlugin, SpeechService, TranscriptionService, createNodePlugin };
+export { type NodePlugin, createNodePlugin };

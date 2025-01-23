@@ -6028,11 +6028,152 @@ var require_cjs = __commonJS({
   }
 });
 
+// src/actions/describe-image.ts
+import {
+  composeContext,
+  generateObject,
+  ModelClass,
+  elizaLogger,
+  ServiceType
+} from "@elizaos/core";
+
+// src/templates.ts
+var getFileLocationTemplate = `
+{{recentMessages}}
+
+extract the file location from the users message or the attachment in the message history that they are referring to.
+your job is to infer the correct attachment based on the recent messages, the users most recent message, and the attachments in the message
+image attachments are the result of the users uploads, or images you have created.
+only respond with the file location, no other text.
+typically the file location is in the form of a URL or a file path.
+
+\`\`\`json
+{
+    "fileLocation": "file location text goes here"
+}
+\`\`\`
+`;
+
+// src/types.ts
+import { z } from "zod";
+var FileLocationResultSchema = z.object({
+  fileLocation: z.string().min(1)
+});
+function isFileLocationResult(obj) {
+  return FileLocationResultSchema.safeParse(obj).success;
+}
+
+// src/actions/describe-image.ts
+var describeImage = {
+  name: "DESCRIBE_IMAGE",
+  similes: ["DESCRIBE_PICTURE", "EXPLAIN_PICTURE", "EXPLAIN_IMAGE"],
+  validate: async (_runtime, _message) => {
+    return true;
+  },
+  description: "Describe an image",
+  handler: async (runtime, message, state, _options, callback) => {
+    const getFileLocationContext = composeContext({
+      state,
+      template: getFileLocationTemplate
+    });
+    const fileLocationResultObject = await generateObject({
+      runtime,
+      context: getFileLocationContext,
+      modelClass: ModelClass.SMALL,
+      schema: FileLocationResultSchema,
+      stop: ["\n"]
+    });
+    if (!isFileLocationResult(fileLocationResultObject?.object)) {
+      elizaLogger.error("Failed to generate file location");
+      return false;
+    }
+    const { fileLocation } = fileLocationResultObject.object;
+    const { description } = await runtime.getService(ServiceType.IMAGE_DESCRIPTION).describeImage(fileLocation);
+    runtime.messageManager.createMemory({
+      userId: message.agentId,
+      agentId: message.agentId,
+      roomId: message.roomId,
+      content: {
+        text: description
+      }
+    });
+    callback({
+      text: description
+    });
+    return true;
+  },
+  examples: [
+    [
+      {
+        user: "{{user1}}",
+        content: {
+          text: "Can you describe this image for me?"
+        }
+      },
+      {
+        user: "{{user2}}",
+        content: {
+          text: "Let me analyze this image for you...",
+          action: "DESCRIBE_IMAGE"
+        }
+      },
+      {
+        user: "{{user2}}",
+        content: {
+          text: "I see an orange tabby cat sitting on a windowsill. The cat appears to be relaxed and looking out the window at birds flying by. The lighting suggests it's a sunny afternoon."
+        }
+      }
+    ],
+    [
+      {
+        user: "{{user1}}",
+        content: {
+          text: "What's in this picture?"
+        }
+      },
+      {
+        user: "{{user2}}",
+        content: {
+          text: "I'll take a look at that image...",
+          action: "DESCRIBE_IMAGE"
+        }
+      },
+      {
+        user: "{{user2}}",
+        content: {
+          text: "The image shows a modern kitchen with stainless steel appliances. There's a large island counter in the center with marble countertops. The cabinets are white with sleek handles, and there's pendant lighting hanging above the island."
+        }
+      }
+    ],
+    [
+      {
+        user: "{{user1}}",
+        content: {
+          text: "Could you tell me what this image depicts?"
+        }
+      },
+      {
+        user: "{{user2}}",
+        content: {
+          text: "I'll describe this image for you...",
+          action: "DESCRIBE_IMAGE"
+        }
+      },
+      {
+        user: "{{user2}}",
+        content: {
+          text: "This is a scenic mountain landscape at sunset. The peaks are snow-capped and reflected in a calm lake below. The sky is painted in vibrant oranges and purples, with a few wispy clouds catching the last rays of sunlight."
+        }
+      }
+    ]
+  ]
+};
+
 // src/services/speech.ts
 import { PassThrough } from "stream";
 import { Readable } from "node:stream";
 import { ReadableStream } from "node:stream/web";
-import { ServiceType } from "@elizaos/core";
+import { ServiceType as ServiceType2 } from "@elizaos/core";
 
 // src/services/audioUtils.ts
 function getWavHeader(audioLength, sampleRate, channelCount = 1, bitsPerSample = 16) {
@@ -6060,22 +6201,22 @@ function getWavHeader(audioLength, sampleRate, channelCount = 1, bitsPerSample =
 import { Service } from "@elizaos/core";
 
 // src/environment.ts
-import { z } from "zod";
-var nodeEnvSchema = z.object({
-  OPENAI_API_KEY: z.string().min(1, "OpenAI API key is required"),
+import { z as z2 } from "zod";
+var nodeEnvSchema = z2.object({
+  OPENAI_API_KEY: z2.string().min(1, "OpenAI API key is required"),
   // Core settings
-  ELEVENLABS_XI_API_KEY: z.string().optional(),
+  ELEVENLABS_XI_API_KEY: z2.string().optional(),
   // All other settings optional with defaults
-  ELEVENLABS_MODEL_ID: z.string().optional(),
-  ELEVENLABS_VOICE_ID: z.string().optional(),
-  ELEVENLABS_VOICE_STABILITY: z.string().optional(),
-  ELEVENLABS_VOICE_SIMILARITY_BOOST: z.string().optional(),
-  ELEVENLABS_VOICE_STYLE: z.string().optional(),
-  ELEVENLABS_VOICE_USE_SPEAKER_BOOST: z.string().optional(),
-  ELEVENLABS_OPTIMIZE_STREAMING_LATENCY: z.string().optional(),
-  ELEVENLABS_OUTPUT_FORMAT: z.string().optional(),
-  VITS_VOICE: z.string().optional(),
-  VITS_MODEL: z.string().optional()
+  ELEVENLABS_MODEL_ID: z2.string().optional(),
+  ELEVENLABS_VOICE_ID: z2.string().optional(),
+  ELEVENLABS_VOICE_STABILITY: z2.string().optional(),
+  ELEVENLABS_VOICE_SIMILARITY_BOOST: z2.string().optional(),
+  ELEVENLABS_VOICE_STYLE: z2.string().optional(),
+  ELEVENLABS_VOICE_USE_SPEAKER_BOOST: z2.string().optional(),
+  ELEVENLABS_OPTIMIZE_STREAMING_LATENCY: z2.string().optional(),
+  ELEVENLABS_OUTPUT_FORMAT: z2.string().optional(),
+  VITS_VOICE: z2.string().optional(),
+  VITS_MODEL: z2.string().optional()
 });
 async function validateNodeConfig(runtime) {
   try {
@@ -6102,7 +6243,7 @@ async function validateNodeConfig(runtime) {
     };
     return nodeEnvSchema.parse(config);
   } catch (error) {
-    if (error instanceof z.ZodError) {
+    if (error instanceof z2.ZodError) {
       const errorMessages = error.errors.map((err) => `${err.path.join(".")}: ${err.message}`).join("\n");
       throw new Error(
         `Node configuration validation failed:
@@ -6115,7 +6256,7 @@ ${errorMessages}`
 
 // src/services/speech.ts
 import * as Echogarden from "echogarden";
-import { elizaLogger } from "@elizaos/core";
+import { elizaLogger as elizaLogger2 } from "@elizaos/core";
 function prependWavHeader(readable, audioLength, sampleRate, channelCount = 1, bitsPerSample = 16) {
   const wavHeader = getWavHeader(
     audioLength,
@@ -6142,7 +6283,7 @@ async function getVoiceSettings(runtime) {
   const useVits = !hasElevenLabs;
   const voiceSettings = runtime.character.settings?.voice;
   const elevenlabsSettings = voiceSettings?.elevenlabs;
-  elizaLogger.debug("Voice settings:", {
+  elizaLogger2.debug("Voice settings:", {
     hasElevenLabs,
     useVits,
     voiceSettings,
@@ -6192,7 +6333,7 @@ async function textToSpeech(runtime, text) {
       const errorBodyString = await response.text();
       const errorBody = JSON.parse(errorBodyString);
       if (status === 401 && errorBody.detail?.status === "quota_exceeded") {
-        elizaLogger.log(
+        elizaLogger2.log(
           "ElevenLabs quota exceeded, falling back to VITS"
         );
         throw new Error("QUOTA_EXCEEDED");
@@ -6247,12 +6388,12 @@ async function textToSpeech(runtime, text) {
       });
       let wavStream;
       if (audio instanceof Buffer) {
-        elizaLogger.log("audio is a buffer");
+        elizaLogger2.log("audio is a buffer");
         wavStream = Readable.from(audio);
       } else if ("audioChannels" in audio && "sampleRate" in audio) {
-        elizaLogger.log("audio is a RawAudio");
+        elizaLogger2.log("audio is a RawAudio");
         const floatBuffer = Buffer.from(audio.audioChannels[0].buffer);
-        elizaLogger.log("buffer length: ", floatBuffer.length);
+        elizaLogger2.log("buffer length: ", floatBuffer.length);
         const sampleRate = audio.sampleRate;
         const floatArray = new Float32Array(floatBuffer.buffer);
         const pcmBuffer = new Int16Array(floatArray.length);
@@ -6281,12 +6422,12 @@ async function textToSpeech(runtime, text) {
 async function processVitsAudio(audio) {
   let wavStream;
   if (audio instanceof Buffer) {
-    elizaLogger.log("audio is a buffer");
+    elizaLogger2.log("audio is a buffer");
     wavStream = Readable.from(audio);
   } else if ("audioChannels" in audio && "sampleRate" in audio) {
-    elizaLogger.log("audio is a RawAudio");
+    elizaLogger2.log("audio is a RawAudio");
     const floatBuffer = Buffer.from(audio.audioChannels[0].buffer);
-    elizaLogger.log("buffer length: ", floatBuffer.length);
+    elizaLogger2.log("buffer length: ", floatBuffer.length);
     const sampleRate = audio.sampleRate;
     const floatArray = new Float32Array(floatBuffer.buffer);
     const pcmBuffer = new Int16Array(floatArray.length);
@@ -6318,7 +6459,7 @@ async function generateVitsAudio(runtime, text) {
   return processVitsAudio(audio);
 }
 var SpeechService = class _SpeechService extends Service {
-  static serviceType = ServiceType.SPEECH_GENERATION;
+  static serviceType = ServiceType2.SPEECH_GENERATION;
   async initialize(_runtime) {
   }
   getInstance() {
@@ -6340,11 +6481,11 @@ var SpeechService = class _SpeechService extends Service {
 
 // src/services/transcription.ts
 import {
-  elizaLogger as elizaLogger2,
+  elizaLogger as elizaLogger3,
   settings,
   TranscriptionProvider
 } from "@elizaos/core";
-import { Service as Service2, ServiceType as ServiceType2 } from "@elizaos/core";
+import { Service as Service2, ServiceType as ServiceType3 } from "@elizaos/core";
 import { exec } from "child_process";
 
 // ../../node_modules/formdata-node/lib/esm/FormData.js
@@ -14144,7 +14285,7 @@ var __dirname2 = path.dirname(__filename);
 var execAsync = promisify(exec);
 var TranscriptionService = class extends Service2 {
   runtime = null;
-  static serviceType = ServiceType2.TRANSCRIPTION;
+  static serviceType = ServiceType3.TRANSCRIPTION;
   CONTENT_CACHE_DIR;
   DEBUG_AUDIO_DIR;
   TARGET_SAMPLE_RATE = 16e3;
@@ -14259,11 +14400,11 @@ var TranscriptionService = class extends Service2 {
       try {
         fs.accessSync("/usr/local/cuda/bin/nvcc", fs.constants.X_OK);
         this.isCudaAvailable = true;
-        elizaLogger2.log(
+        elizaLogger3.log(
           "CUDA detected. Transcription will use CUDA acceleration."
         );
       } catch (_error) {
-        elizaLogger2.log(
+        elizaLogger3.log(
           "CUDA not detected. Transcription will run on CPU."
         );
       }
@@ -14275,16 +14416,16 @@ var TranscriptionService = class extends Service2 {
       );
       if (fs.existsSync(cudaPath)) {
         this.isCudaAvailable = true;
-        elizaLogger2.log(
+        elizaLogger3.log(
           "CUDA detected. Transcription will use CUDA acceleration."
         );
       } else {
-        elizaLogger2.log(
+        elizaLogger3.log(
           "CUDA not detected. Transcription will run on CPU."
         );
       }
     } else {
-      elizaLogger2.log(
+      elizaLogger3.log(
         "CUDA not supported on this platform. Transcription will run on CPU."
       );
     }
@@ -14305,20 +14446,20 @@ var TranscriptionService = class extends Service2 {
       );
       const probeResult = JSON.parse(stdout);
       const stream = probeResult.streams[0];
-      elizaLogger2.log("Input audio info:", stream);
+      elizaLogger3.log("Input audio info:", stream);
       let ffmpegCommand = `ffmpeg -i "${inputPath}" -ar ${this.TARGET_SAMPLE_RATE} -ac 1`;
       if (stream.codec_name === "pcm_f32le") {
         ffmpegCommand += " -acodec pcm_s16le";
       }
       ffmpegCommand += ` "${outputPath}"`;
-      elizaLogger2.log("FFmpeg command:", ffmpegCommand);
+      elizaLogger3.log("FFmpeg command:", ffmpegCommand);
       await execAsync(ffmpegCommand);
       const convertedBuffer = fs.readFileSync(outputPath);
       fs.unlinkSync(inputPath);
       fs.unlinkSync(outputPath);
       return convertedBuffer;
     } catch (error) {
-      elizaLogger2.error("Error converting audio:", error);
+      elizaLogger3.error("Error converting audio:", error);
       throw error;
     }
   }
@@ -14327,7 +14468,7 @@ var TranscriptionService = class extends Service2 {
     const filename = `${prefix}_${Date.now()}.wav`;
     const filePath = path.join(this.DEBUG_AUDIO_DIR, filename);
     fs.writeFileSync(filePath, Buffer.from(audioBuffer));
-    elizaLogger2.log(`Debug audio saved: ${filePath}`);
+    elizaLogger3.log(`Debug audio saved: ${filePath}`);
   }
   async transcribeAttachment(audioBuffer) {
     return await this.transcribe(audioBuffer);
@@ -14399,7 +14540,7 @@ var TranscriptionService = class extends Service2 {
     return result;
   }
   async transcribeWithOpenAI(audioBuffer) {
-    elizaLogger2.log("Transcribing audio with OpenAI...");
+    elizaLogger3.log("Transcribing audio with OpenAI...");
     try {
       await this.saveDebugAudio(audioBuffer, "openai_input_original");
       const arrayBuffer = new Uint8Array(audioBuffer).buffer;
@@ -14418,21 +14559,21 @@ var TranscriptionService = class extends Service2 {
         file
       });
       const trimmedResult = result.trim();
-      elizaLogger2.log(`OpenAI speech to text result: "${trimmedResult}"`);
+      elizaLogger3.log(`OpenAI speech to text result: "${trimmedResult}"`);
       return trimmedResult;
     } catch (error) {
-      elizaLogger2.error(
+      elizaLogger3.error(
         "Error in OpenAI speech-to-text conversion:",
         error
       );
       if (error.response) {
-        elizaLogger2.error("Response data:", error.response.data);
-        elizaLogger2.error("Response status:", error.response.status);
-        elizaLogger2.error("Response headers:", error.response.headers);
+        elizaLogger3.error("Response data:", error.response.data);
+        elizaLogger3.error("Response status:", error.response.status);
+        elizaLogger3.error("Response headers:", error.response.headers);
       } else if (error.request) {
-        elizaLogger2.error("No response received:", error.request);
+        elizaLogger3.error("No response received:", error.request);
       } else {
-        elizaLogger2.error("Error setting up request:", error.message);
+        elizaLogger3.error("Error setting up request:", error.message);
       }
       return null;
     }
@@ -14443,7 +14584,7 @@ var TranscriptionService = class extends Service2 {
    */
   async transcribeLocally(audioBuffer) {
     try {
-      elizaLogger2.log("Transcribing audio locally...");
+      elizaLogger3.log("Transcribing audio locally...");
       await this.saveDebugAudio(audioBuffer, "local_input_original");
       const arrayBuffer = new Uint8Array(audioBuffer).buffer;
       const convertedBuffer = Buffer.from(await this.convertAudio(arrayBuffer)).buffer;
@@ -14454,7 +14595,7 @@ var TranscriptionService = class extends Service2 {
       );
       const uint8Array = new Uint8Array(convertedBuffer);
       fs.writeFileSync(tempWavFile, uint8Array);
-      elizaLogger2.debug(`Temporary WAV file created: ${tempWavFile}`);
+      elizaLogger3.debug(`Temporary WAV file created: ${tempWavFile}`);
       let output = await (0, import_nodejs_whisper.nodewhisper)(tempWavFile, {
         modelName: "base.en",
         autoDownloadModelName: "base.en",
@@ -14480,159 +14621,18 @@ var TranscriptionService = class extends Service2 {
       }).join("\n");
       fs.unlinkSync(tempWavFile);
       if (!output || output.length < 5) {
-        elizaLogger2.log("Output is null or too short, returning null");
+        elizaLogger3.log("Output is null or too short, returning null");
         return null;
       }
       return output;
     } catch (error) {
-      elizaLogger2.error(
+      elizaLogger3.error(
         "Error in local speech-to-text conversion:",
         error
       );
       return null;
     }
   }
-};
-
-// src/actions/describe-image.ts
-import {
-  composeContext,
-  generateObject,
-  ModelClass,
-  elizaLogger as elizaLogger3,
-  ServiceType as ServiceType3
-} from "@elizaos/core";
-
-// src/templates.ts
-var getFileLocationTemplate = `
-{{recentMessages}}
-
-extract the file location from the users message or the attachment in the message history that they are referring to.
-your job is to infer the correct attachment based on the recent messages, the users most recent message, and the attachments in the message
-image attachments are the result of the users uploads, or images you have created.
-only respond with the file location, no other text.
-typically the file location is in the form of a URL or a file path.
-
-\`\`\`json
-{
-    "fileLocation": "file location text goes here"
-}
-\`\`\`
-`;
-
-// src/types.ts
-import { z as z2 } from "zod";
-var FileLocationResultSchema = z2.object({
-  fileLocation: z2.string().min(1)
-});
-function isFileLocationResult(obj) {
-  return FileLocationResultSchema.safeParse(obj).success;
-}
-
-// src/actions/describe-image.ts
-var describeImage = {
-  name: "DESCRIBE_IMAGE",
-  similes: ["DESCRIBE_PICTURE", "EXPLAIN_PICTURE", "EXPLAIN_IMAGE"],
-  validate: async (_runtime, _message) => {
-    return true;
-  },
-  description: "Describe an image",
-  handler: async (runtime, message, state, _options, callback) => {
-    const getFileLocationContext = composeContext({
-      state,
-      template: getFileLocationTemplate
-    });
-    const fileLocationResultObject = await generateObject({
-      runtime,
-      context: getFileLocationContext,
-      modelClass: ModelClass.SMALL,
-      schema: FileLocationResultSchema,
-      stop: ["\n"]
-    });
-    if (!isFileLocationResult(fileLocationResultObject?.object)) {
-      elizaLogger3.error("Failed to generate file location");
-      return false;
-    }
-    const { fileLocation } = fileLocationResultObject.object;
-    const { description } = await runtime.getService(ServiceType3.IMAGE_DESCRIPTION).describeImage(fileLocation);
-    runtime.messageManager.createMemory({
-      userId: message.agentId,
-      agentId: message.agentId,
-      roomId: message.roomId,
-      content: {
-        text: description
-      }
-    });
-    callback({
-      text: description
-    });
-    return true;
-  },
-  examples: [
-    [
-      {
-        user: "{{user1}}",
-        content: {
-          text: "Can you describe this image for me?"
-        }
-      },
-      {
-        user: "{{user2}}",
-        content: {
-          text: "Let me analyze this image for you...",
-          action: "DESCRIBE_IMAGE"
-        }
-      },
-      {
-        user: "{{user2}}",
-        content: {
-          text: "I see an orange tabby cat sitting on a windowsill. The cat appears to be relaxed and looking out the window at birds flying by. The lighting suggests it's a sunny afternoon."
-        }
-      }
-    ],
-    [
-      {
-        user: "{{user1}}",
-        content: {
-          text: "What's in this picture?"
-        }
-      },
-      {
-        user: "{{user2}}",
-        content: {
-          text: "I'll take a look at that image...",
-          action: "DESCRIBE_IMAGE"
-        }
-      },
-      {
-        user: "{{user2}}",
-        content: {
-          text: "The image shows a modern kitchen with stainless steel appliances. There's a large island counter in the center with marble countertops. The cabinets are white with sleek handles, and there's pendant lighting hanging above the island."
-        }
-      }
-    ],
-    [
-      {
-        user: "{{user1}}",
-        content: {
-          text: "Could you tell me what this image depicts?"
-        }
-      },
-      {
-        user: "{{user2}}",
-        content: {
-          text: "I'll describe this image for you...",
-          action: "DESCRIBE_IMAGE"
-        }
-      },
-      {
-        user: "{{user2}}",
-        content: {
-          text: "This is a scenic mountain landscape at sunset. The peaks are snow-capped and reflected in a calm lake below. The sky is painted in vibrant oranges and purples, with a few wispy clouds catching the last rays of sunlight."
-        }
-      }
-    ]
-  ]
 };
 
 // src/index.ts
@@ -14648,8 +14648,6 @@ function createNodePlugin() {
   };
 }
 export {
-  SpeechService,
-  TranscriptionService,
   createNodePlugin
 };
 //# sourceMappingURL=index.js.map

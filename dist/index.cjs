@@ -145,11 +145,11 @@ function Q(e2) {
 function N(e2, t2) {
   const r2 = Number.MAX_SAFE_INTEGER;
   let o2 = Number(e2);
-  if (o2 = Q(o2), !z2(o2)) throw new TypeError(`${t2} is not a finite number`);
+  if (o2 = Q(o2), !z3(o2)) throw new TypeError(`${t2} is not a finite number`);
   if (o2 = function(e3) {
     return Q(L(e3));
   }(o2), o2 < 0 || o2 > r2) throw new TypeError(`${t2} is outside the accepted range of 0 to ${r2}, inclusive`);
-  return z2(o2) && 0 !== o2 ? o2 : 0;
+  return z3(o2) && 0 !== o2 ? o2 : 0;
 }
 function H(e2) {
   if (!r(e2)) return false;
@@ -1019,7 +1019,7 @@ function qr(e2) {
 function Cr(e2) {
   "erroring" === e2._writableState && qr(e2);
 }
-var e, o, a, i, l, s, y, S, v, R, T, q, C, z2, L, ReadableStreamDefaultReader, te, re, ae, ReadableStreamBYOBRequest, ReadableByteStreamController, ReadableStreamBYOBReader, Ue, WritableStream, WritableStreamDefaultWriter, lt, WritableStreamDefaultController, Pt, Wt, ReadableStreamDefaultController, ReadableStream2, er, ByteLengthQueuingStrategy, or, CountQueuingStrategy, TransformStream, TransformStreamDefaultController;
+var e, o, a, i, l, s, y, S, v, R, T, q, C, z3, L, ReadableStreamDefaultReader, te, re, ae, ReadableStreamBYOBRequest, ReadableByteStreamController, ReadableStreamBYOBReader, Ue, WritableStream, WritableStreamDefaultWriter, lt, WritableStreamDefaultController, Pt, Wt, ReadableStreamDefaultController, ReadableStream2, er, ByteLengthQueuingStrategy, or, CountQueuingStrategy, TransformStream, TransformStreamDefaultController;
 var init_ponyfill = __esm({
   "../../node_modules/web-streams-polyfill/dist/ponyfill.mjs"() {
     e = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? Symbol : (e2) => `Symbol(${e2})`;
@@ -1070,7 +1070,7 @@ var init_ponyfill = __esm({
     T = e("[[CancelSteps]]");
     q = e("[[PullSteps]]");
     C = e("[[ReleaseSteps]]");
-    z2 = Number.isFinite || function(e2) {
+    z3 = Number.isFinite || function(e2) {
       return "number" == typeof e2 && isFinite(e2);
     };
     L = Math.trunc || function(e2) {
@@ -17059,17 +17059,150 @@ var init_wrapper = __esm({
 // src/index.ts
 var index_exports = {};
 __export(index_exports, {
-  SpeechService: () => SpeechService,
-  TranscriptionService: () => TranscriptionService,
   createNodePlugin: () => createNodePlugin
 });
 module.exports = __toCommonJS(index_exports);
+
+// src/actions/describe-image.ts
+var import_core = require("@elizaos/core");
+
+// src/templates.ts
+var getFileLocationTemplate = `
+{{recentMessages}}
+
+extract the file location from the users message or the attachment in the message history that they are referring to.
+your job is to infer the correct attachment based on the recent messages, the users most recent message, and the attachments in the message
+image attachments are the result of the users uploads, or images you have created.
+only respond with the file location, no other text.
+typically the file location is in the form of a URL or a file path.
+
+\`\`\`json
+{
+    "fileLocation": "file location text goes here"
+}
+\`\`\`
+`;
+
+// src/types.ts
+var import_zod = require("zod");
+var FileLocationResultSchema = import_zod.z.object({
+  fileLocation: import_zod.z.string().min(1)
+});
+function isFileLocationResult(obj) {
+  return FileLocationResultSchema.safeParse(obj).success;
+}
+
+// src/actions/describe-image.ts
+var describeImage = {
+  name: "DESCRIBE_IMAGE",
+  similes: ["DESCRIBE_PICTURE", "EXPLAIN_PICTURE", "EXPLAIN_IMAGE"],
+  validate: async (_runtime, _message) => {
+    return true;
+  },
+  description: "Describe an image",
+  handler: async (runtime, message, state, _options, callback) => {
+    const getFileLocationContext = (0, import_core.composeContext)({
+      state,
+      template: getFileLocationTemplate
+    });
+    const fileLocationResultObject = await (0, import_core.generateObject)({
+      runtime,
+      context: getFileLocationContext,
+      modelClass: import_core.ModelClass.SMALL,
+      schema: FileLocationResultSchema,
+      stop: ["\n"]
+    });
+    if (!isFileLocationResult(fileLocationResultObject?.object)) {
+      import_core.elizaLogger.error("Failed to generate file location");
+      return false;
+    }
+    const { fileLocation } = fileLocationResultObject.object;
+    const { description } = await runtime.getService(import_core.ServiceType.IMAGE_DESCRIPTION).describeImage(fileLocation);
+    runtime.messageManager.createMemory({
+      userId: message.agentId,
+      agentId: message.agentId,
+      roomId: message.roomId,
+      content: {
+        text: description
+      }
+    });
+    callback({
+      text: description
+    });
+    return true;
+  },
+  examples: [
+    [
+      {
+        user: "{{user1}}",
+        content: {
+          text: "Can you describe this image for me?"
+        }
+      },
+      {
+        user: "{{user2}}",
+        content: {
+          text: "Let me analyze this image for you...",
+          action: "DESCRIBE_IMAGE"
+        }
+      },
+      {
+        user: "{{user2}}",
+        content: {
+          text: "I see an orange tabby cat sitting on a windowsill. The cat appears to be relaxed and looking out the window at birds flying by. The lighting suggests it's a sunny afternoon."
+        }
+      }
+    ],
+    [
+      {
+        user: "{{user1}}",
+        content: {
+          text: "What's in this picture?"
+        }
+      },
+      {
+        user: "{{user2}}",
+        content: {
+          text: "I'll take a look at that image...",
+          action: "DESCRIBE_IMAGE"
+        }
+      },
+      {
+        user: "{{user2}}",
+        content: {
+          text: "The image shows a modern kitchen with stainless steel appliances. There's a large island counter in the center with marble countertops. The cabinets are white with sleek handles, and there's pendant lighting hanging above the island."
+        }
+      }
+    ],
+    [
+      {
+        user: "{{user1}}",
+        content: {
+          text: "Could you tell me what this image depicts?"
+        }
+      },
+      {
+        user: "{{user2}}",
+        content: {
+          text: "I'll describe this image for you...",
+          action: "DESCRIBE_IMAGE"
+        }
+      },
+      {
+        user: "{{user2}}",
+        content: {
+          text: "This is a scenic mountain landscape at sunset. The peaks are snow-capped and reflected in a calm lake below. The sky is painted in vibrant oranges and purples, with a few wispy clouds catching the last rays of sunlight."
+        }
+      }
+    ]
+  ]
+};
 
 // src/services/speech.ts
 var import_stream = require("stream");
 var import_node_stream = require("stream");
 var import_web = require("stream/web");
-var import_core = require("@elizaos/core");
+var import_core2 = require("@elizaos/core");
 
 // src/services/audioUtils.ts
 function getWavHeader(audioLength, sampleRate, channelCount = 1, bitsPerSample = 16) {
@@ -17094,25 +17227,25 @@ function getWavHeader(audioLength, sampleRate, channelCount = 1, bitsPerSample =
 }
 
 // src/services/speech.ts
-var import_core2 = require("@elizaos/core");
+var import_core3 = require("@elizaos/core");
 
 // src/environment.ts
-var import_zod = require("zod");
-var nodeEnvSchema = import_zod.z.object({
-  OPENAI_API_KEY: import_zod.z.string().min(1, "OpenAI API key is required"),
+var import_zod2 = require("zod");
+var nodeEnvSchema = import_zod2.z.object({
+  OPENAI_API_KEY: import_zod2.z.string().min(1, "OpenAI API key is required"),
   // Core settings
-  ELEVENLABS_XI_API_KEY: import_zod.z.string().optional(),
+  ELEVENLABS_XI_API_KEY: import_zod2.z.string().optional(),
   // All other settings optional with defaults
-  ELEVENLABS_MODEL_ID: import_zod.z.string().optional(),
-  ELEVENLABS_VOICE_ID: import_zod.z.string().optional(),
-  ELEVENLABS_VOICE_STABILITY: import_zod.z.string().optional(),
-  ELEVENLABS_VOICE_SIMILARITY_BOOST: import_zod.z.string().optional(),
-  ELEVENLABS_VOICE_STYLE: import_zod.z.string().optional(),
-  ELEVENLABS_VOICE_USE_SPEAKER_BOOST: import_zod.z.string().optional(),
-  ELEVENLABS_OPTIMIZE_STREAMING_LATENCY: import_zod.z.string().optional(),
-  ELEVENLABS_OUTPUT_FORMAT: import_zod.z.string().optional(),
-  VITS_VOICE: import_zod.z.string().optional(),
-  VITS_MODEL: import_zod.z.string().optional()
+  ELEVENLABS_MODEL_ID: import_zod2.z.string().optional(),
+  ELEVENLABS_VOICE_ID: import_zod2.z.string().optional(),
+  ELEVENLABS_VOICE_STABILITY: import_zod2.z.string().optional(),
+  ELEVENLABS_VOICE_SIMILARITY_BOOST: import_zod2.z.string().optional(),
+  ELEVENLABS_VOICE_STYLE: import_zod2.z.string().optional(),
+  ELEVENLABS_VOICE_USE_SPEAKER_BOOST: import_zod2.z.string().optional(),
+  ELEVENLABS_OPTIMIZE_STREAMING_LATENCY: import_zod2.z.string().optional(),
+  ELEVENLABS_OUTPUT_FORMAT: import_zod2.z.string().optional(),
+  VITS_VOICE: import_zod2.z.string().optional(),
+  VITS_MODEL: import_zod2.z.string().optional()
 });
 async function validateNodeConfig(runtime) {
   try {
@@ -17139,7 +17272,7 @@ async function validateNodeConfig(runtime) {
     };
     return nodeEnvSchema.parse(config);
   } catch (error) {
-    if (error instanceof import_zod.z.ZodError) {
+    if (error instanceof import_zod2.z.ZodError) {
       const errorMessages = error.errors.map((err) => `${err.path.join(".")}: ${err.message}`).join("\n");
       throw new Error(
         `Node configuration validation failed:
@@ -17152,7 +17285,7 @@ ${errorMessages}`
 
 // src/services/speech.ts
 var Echogarden = __toESM(require("echogarden"), 1);
-var import_core3 = require("@elizaos/core");
+var import_core4 = require("@elizaos/core");
 function prependWavHeader(readable, audioLength, sampleRate, channelCount = 1, bitsPerSample = 16) {
   const wavHeader = getWavHeader(
     audioLength,
@@ -17179,7 +17312,7 @@ async function getVoiceSettings(runtime) {
   const useVits = !hasElevenLabs;
   const voiceSettings = runtime.character.settings?.voice;
   const elevenlabsSettings = voiceSettings?.elevenlabs;
-  import_core3.elizaLogger.debug("Voice settings:", {
+  import_core4.elizaLogger.debug("Voice settings:", {
     hasElevenLabs,
     useVits,
     voiceSettings,
@@ -17229,7 +17362,7 @@ async function textToSpeech(runtime, text) {
       const errorBodyString = await response.text();
       const errorBody = JSON.parse(errorBodyString);
       if (status === 401 && errorBody.detail?.status === "quota_exceeded") {
-        import_core3.elizaLogger.log(
+        import_core4.elizaLogger.log(
           "ElevenLabs quota exceeded, falling back to VITS"
         );
         throw new Error("QUOTA_EXCEEDED");
@@ -17284,12 +17417,12 @@ async function textToSpeech(runtime, text) {
       });
       let wavStream;
       if (audio instanceof Buffer) {
-        import_core3.elizaLogger.log("audio is a buffer");
+        import_core4.elizaLogger.log("audio is a buffer");
         wavStream = import_node_stream.Readable.from(audio);
       } else if ("audioChannels" in audio && "sampleRate" in audio) {
-        import_core3.elizaLogger.log("audio is a RawAudio");
+        import_core4.elizaLogger.log("audio is a RawAudio");
         const floatBuffer = Buffer.from(audio.audioChannels[0].buffer);
-        import_core3.elizaLogger.log("buffer length: ", floatBuffer.length);
+        import_core4.elizaLogger.log("buffer length: ", floatBuffer.length);
         const sampleRate = audio.sampleRate;
         const floatArray = new Float32Array(floatBuffer.buffer);
         const pcmBuffer = new Int16Array(floatArray.length);
@@ -17318,12 +17451,12 @@ async function textToSpeech(runtime, text) {
 async function processVitsAudio(audio) {
   let wavStream;
   if (audio instanceof Buffer) {
-    import_core3.elizaLogger.log("audio is a buffer");
+    import_core4.elizaLogger.log("audio is a buffer");
     wavStream = import_node_stream.Readable.from(audio);
   } else if ("audioChannels" in audio && "sampleRate" in audio) {
-    import_core3.elizaLogger.log("audio is a RawAudio");
+    import_core4.elizaLogger.log("audio is a RawAudio");
     const floatBuffer = Buffer.from(audio.audioChannels[0].buffer);
-    import_core3.elizaLogger.log("buffer length: ", floatBuffer.length);
+    import_core4.elizaLogger.log("buffer length: ", floatBuffer.length);
     const sampleRate = audio.sampleRate;
     const floatArray = new Float32Array(floatBuffer.buffer);
     const pcmBuffer = new Int16Array(floatArray.length);
@@ -17354,8 +17487,8 @@ async function generateVitsAudio(runtime, text) {
   });
   return processVitsAudio(audio);
 }
-var SpeechService = class _SpeechService extends import_core2.Service {
-  static serviceType = import_core.ServiceType.SPEECH_GENERATION;
+var SpeechService = class _SpeechService extends import_core3.Service {
+  static serviceType = import_core2.ServiceType.SPEECH_GENERATION;
   async initialize(_runtime) {
   }
   getInstance() {
@@ -17376,8 +17509,8 @@ var SpeechService = class _SpeechService extends import_core2.Service {
 };
 
 // src/services/transcription.ts
-var import_core21 = require("@elizaos/core");
 var import_core22 = require("@elizaos/core");
+var import_core23 = require("@elizaos/core");
 var import_child_process = require("child_process");
 
 // ../../node_modules/formdata-node/lib/esm/FormData.js
@@ -25186,9 +25319,9 @@ var import_meta = {};
 var __filename = (0, import_url2.fileURLToPath)(import_meta.url);
 var __dirname2 = import_path2.default.dirname(__filename);
 var execAsync = (0, import_util3.promisify)(import_child_process.exec);
-var TranscriptionService = class extends import_core22.Service {
+var TranscriptionService = class extends import_core23.Service {
   runtime = null;
-  static serviceType = import_core22.ServiceType.TRANSCRIPTION;
+  static serviceType = import_core23.ServiceType.TRANSCRIPTION;
   CONTENT_CACHE_DIR;
   DEBUG_AUDIO_DIR;
   TARGET_SAMPLE_RATE = 16e3;
@@ -25216,20 +25349,20 @@ var TranscriptionService = class extends import_core22.Service {
     this.runtime = _runtime;
     let chosenProvider = null;
     const charSetting = this.runtime.character?.settings?.transcription;
-    if (charSetting === import_core21.TranscriptionProvider.Deepgram) {
+    if (charSetting === import_core22.TranscriptionProvider.Deepgram) {
       const deepgramKey = this.runtime.getSetting("DEEPGRAM_API_KEY");
       if (deepgramKey) {
         this.deepgram = createClient(deepgramKey);
-        chosenProvider = import_core21.TranscriptionProvider.Deepgram;
+        chosenProvider = import_core22.TranscriptionProvider.Deepgram;
       }
-    } else if (charSetting === import_core21.TranscriptionProvider.OpenAI) {
+    } else if (charSetting === import_core22.TranscriptionProvider.OpenAI) {
       const openaiKey = this.runtime.getSetting("OPENAI_API_KEY");
       if (openaiKey) {
         this.openai = new openai_default({ apiKey: openaiKey });
-        chosenProvider = import_core21.TranscriptionProvider.OpenAI;
+        chosenProvider = import_core22.TranscriptionProvider.OpenAI;
       }
-    } else if (charSetting === import_core21.TranscriptionProvider.Local) {
-      chosenProvider = import_core21.TranscriptionProvider.Local;
+    } else if (charSetting === import_core22.TranscriptionProvider.Local) {
+      chosenProvider = import_core22.TranscriptionProvider.Local;
     }
     if (!chosenProvider) {
       const envProvider = this.runtime.getSetting(
@@ -25242,7 +25375,7 @@ var TranscriptionService = class extends import_core22.Service {
               const dgKey = this.runtime.getSetting("DEEPGRAM_API_KEY");
               if (dgKey) {
                 this.deepgram = createClient(dgKey);
-                chosenProvider = import_core21.TranscriptionProvider.Deepgram;
+                chosenProvider = import_core22.TranscriptionProvider.Deepgram;
               }
             }
             break;
@@ -25251,12 +25384,12 @@ var TranscriptionService = class extends import_core22.Service {
               const openaiKey = this.runtime.getSetting("OPENAI_API_KEY");
               if (openaiKey) {
                 this.openai = new openai_default({ apiKey: openaiKey });
-                chosenProvider = import_core21.TranscriptionProvider.OpenAI;
+                chosenProvider = import_core22.TranscriptionProvider.OpenAI;
               }
             }
             break;
           case "local":
-            chosenProvider = import_core21.TranscriptionProvider.Local;
+            chosenProvider = import_core22.TranscriptionProvider.Local;
             break;
         }
       }
@@ -25265,14 +25398,14 @@ var TranscriptionService = class extends import_core22.Service {
       const deepgramKey = this.runtime.getSetting("DEEPGRAM_API_KEY");
       if (deepgramKey) {
         this.deepgram = createClient(deepgramKey);
-        chosenProvider = import_core21.TranscriptionProvider.Deepgram;
+        chosenProvider = import_core22.TranscriptionProvider.Deepgram;
       } else {
         const openaiKey = this.runtime.getSetting("OPENAI_API_KEY");
         if (openaiKey) {
           this.openai = new openai_default({ apiKey: openaiKey });
-          chosenProvider = import_core21.TranscriptionProvider.OpenAI;
+          chosenProvider = import_core22.TranscriptionProvider.OpenAI;
         } else {
-          chosenProvider = import_core21.TranscriptionProvider.Local;
+          chosenProvider = import_core22.TranscriptionProvider.Local;
         }
       }
     }
@@ -25303,32 +25436,32 @@ var TranscriptionService = class extends import_core22.Service {
       try {
         import_fs2.default.accessSync("/usr/local/cuda/bin/nvcc", import_fs2.default.constants.X_OK);
         this.isCudaAvailable = true;
-        import_core21.elizaLogger.log(
+        import_core22.elizaLogger.log(
           "CUDA detected. Transcription will use CUDA acceleration."
         );
       } catch (_error) {
-        import_core21.elizaLogger.log(
+        import_core22.elizaLogger.log(
           "CUDA not detected. Transcription will run on CPU."
         );
       }
     } else if (platform === "win32") {
       const cudaPath = import_path2.default.join(
-        import_core21.settings.CUDA_PATH || "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v11.0",
+        import_core22.settings.CUDA_PATH || "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v11.0",
         "bin",
         "nvcc.exe"
       );
       if (import_fs2.default.existsSync(cudaPath)) {
         this.isCudaAvailable = true;
-        import_core21.elizaLogger.log(
+        import_core22.elizaLogger.log(
           "CUDA detected. Transcription will use CUDA acceleration."
         );
       } else {
-        import_core21.elizaLogger.log(
+        import_core22.elizaLogger.log(
           "CUDA not detected. Transcription will run on CPU."
         );
       }
     } else {
-      import_core21.elizaLogger.log(
+      import_core22.elizaLogger.log(
         "CUDA not supported on this platform. Transcription will run on CPU."
       );
     }
@@ -25349,20 +25482,20 @@ var TranscriptionService = class extends import_core22.Service {
       );
       const probeResult = JSON.parse(stdout);
       const stream = probeResult.streams[0];
-      import_core21.elizaLogger.log("Input audio info:", stream);
+      import_core22.elizaLogger.log("Input audio info:", stream);
       let ffmpegCommand = `ffmpeg -i "${inputPath}" -ar ${this.TARGET_SAMPLE_RATE} -ac 1`;
       if (stream.codec_name === "pcm_f32le") {
         ffmpegCommand += " -acodec pcm_s16le";
       }
       ffmpegCommand += ` "${outputPath}"`;
-      import_core21.elizaLogger.log("FFmpeg command:", ffmpegCommand);
+      import_core22.elizaLogger.log("FFmpeg command:", ffmpegCommand);
       await execAsync(ffmpegCommand);
       const convertedBuffer = import_fs2.default.readFileSync(outputPath);
       import_fs2.default.unlinkSync(inputPath);
       import_fs2.default.unlinkSync(outputPath);
       return convertedBuffer;
     } catch (error) {
-      import_core21.elizaLogger.error("Error converting audio:", error);
+      import_core22.elizaLogger.error("Error converting audio:", error);
       throw error;
     }
   }
@@ -25371,7 +25504,7 @@ var TranscriptionService = class extends import_core22.Service {
     const filename = `${prefix}_${Date.now()}.wav`;
     const filePath = import_path2.default.join(this.DEBUG_AUDIO_DIR, filename);
     import_fs2.default.writeFileSync(filePath, Buffer.from(audioBuffer));
-    import_core21.elizaLogger.log(`Debug audio saved: ${filePath}`);
+    import_core22.elizaLogger.log(`Debug audio saved: ${filePath}`);
   }
   async transcribeAttachment(audioBuffer) {
     return await this.transcribe(audioBuffer);
@@ -25403,10 +25536,10 @@ var TranscriptionService = class extends import_core22.Service {
       const { audioBuffer, resolve } = this.queue.shift();
       let result = null;
       switch (this.transcriptionProvider) {
-        case import_core21.TranscriptionProvider.Deepgram:
+        case import_core22.TranscriptionProvider.Deepgram:
           result = await this.transcribeWithDeepgram(audioBuffer);
           break;
-        case import_core21.TranscriptionProvider.OpenAI:
+        case import_core22.TranscriptionProvider.OpenAI:
           result = await this.transcribeWithOpenAI(audioBuffer);
           break;
         default:
@@ -25443,7 +25576,7 @@ var TranscriptionService = class extends import_core22.Service {
     return result;
   }
   async transcribeWithOpenAI(audioBuffer) {
-    import_core21.elizaLogger.log("Transcribing audio with OpenAI...");
+    import_core22.elizaLogger.log("Transcribing audio with OpenAI...");
     try {
       await this.saveDebugAudio(audioBuffer, "openai_input_original");
       const arrayBuffer = new Uint8Array(audioBuffer).buffer;
@@ -25462,21 +25595,21 @@ var TranscriptionService = class extends import_core22.Service {
         file
       });
       const trimmedResult = result.trim();
-      import_core21.elizaLogger.log(`OpenAI speech to text result: "${trimmedResult}"`);
+      import_core22.elizaLogger.log(`OpenAI speech to text result: "${trimmedResult}"`);
       return trimmedResult;
     } catch (error) {
-      import_core21.elizaLogger.error(
+      import_core22.elizaLogger.error(
         "Error in OpenAI speech-to-text conversion:",
         error
       );
       if (error.response) {
-        import_core21.elizaLogger.error("Response data:", error.response.data);
-        import_core21.elizaLogger.error("Response status:", error.response.status);
-        import_core21.elizaLogger.error("Response headers:", error.response.headers);
+        import_core22.elizaLogger.error("Response data:", error.response.data);
+        import_core22.elizaLogger.error("Response status:", error.response.status);
+        import_core22.elizaLogger.error("Response headers:", error.response.headers);
       } else if (error.request) {
-        import_core21.elizaLogger.error("No response received:", error.request);
+        import_core22.elizaLogger.error("No response received:", error.request);
       } else {
-        import_core21.elizaLogger.error("Error setting up request:", error.message);
+        import_core22.elizaLogger.error("Error setting up request:", error.message);
       }
       return null;
     }
@@ -25487,7 +25620,7 @@ var TranscriptionService = class extends import_core22.Service {
    */
   async transcribeLocally(audioBuffer) {
     try {
-      import_core21.elizaLogger.log("Transcribing audio locally...");
+      import_core22.elizaLogger.log("Transcribing audio locally...");
       await this.saveDebugAudio(audioBuffer, "local_input_original");
       const arrayBuffer = new Uint8Array(audioBuffer).buffer;
       const convertedBuffer = Buffer.from(await this.convertAudio(arrayBuffer)).buffer;
@@ -25498,7 +25631,7 @@ var TranscriptionService = class extends import_core22.Service {
       );
       const uint8Array = new Uint8Array(convertedBuffer);
       import_fs2.default.writeFileSync(tempWavFile, uint8Array);
-      import_core21.elizaLogger.debug(`Temporary WAV file created: ${tempWavFile}`);
+      import_core22.elizaLogger.debug(`Temporary WAV file created: ${tempWavFile}`);
       let output = await (0, import_nodejs_whisper.nodewhisper)(tempWavFile, {
         modelName: "base.en",
         autoDownloadModelName: "base.en",
@@ -25524,153 +25657,18 @@ var TranscriptionService = class extends import_core22.Service {
       }).join("\n");
       import_fs2.default.unlinkSync(tempWavFile);
       if (!output || output.length < 5) {
-        import_core21.elizaLogger.log("Output is null or too short, returning null");
+        import_core22.elizaLogger.log("Output is null or too short, returning null");
         return null;
       }
       return output;
     } catch (error) {
-      import_core21.elizaLogger.error(
+      import_core22.elizaLogger.error(
         "Error in local speech-to-text conversion:",
         error
       );
       return null;
     }
   }
-};
-
-// src/actions/describe-image.ts
-var import_core23 = require("@elizaos/core");
-
-// src/templates.ts
-var getFileLocationTemplate = `
-{{recentMessages}}
-
-extract the file location from the users message or the attachment in the message history that they are referring to.
-your job is to infer the correct attachment based on the recent messages, the users most recent message, and the attachments in the message
-image attachments are the result of the users uploads, or images you have created.
-only respond with the file location, no other text.
-typically the file location is in the form of a URL or a file path.
-
-\`\`\`json
-{
-    "fileLocation": "file location text goes here"
-}
-\`\`\`
-`;
-
-// src/types.ts
-var import_zod2 = require("zod");
-var FileLocationResultSchema = import_zod2.z.object({
-  fileLocation: import_zod2.z.string().min(1)
-});
-function isFileLocationResult(obj) {
-  return FileLocationResultSchema.safeParse(obj).success;
-}
-
-// src/actions/describe-image.ts
-var describeImage = {
-  name: "DESCRIBE_IMAGE",
-  similes: ["DESCRIBE_PICTURE", "EXPLAIN_PICTURE", "EXPLAIN_IMAGE"],
-  validate: async (_runtime, _message) => {
-    return true;
-  },
-  description: "Describe an image",
-  handler: async (runtime, message, state, _options, callback) => {
-    const getFileLocationContext = (0, import_core23.composeContext)({
-      state,
-      template: getFileLocationTemplate
-    });
-    const fileLocationResultObject = await (0, import_core23.generateObject)({
-      runtime,
-      context: getFileLocationContext,
-      modelClass: import_core23.ModelClass.SMALL,
-      schema: FileLocationResultSchema,
-      stop: ["\n"]
-    });
-    if (!isFileLocationResult(fileLocationResultObject?.object)) {
-      import_core23.elizaLogger.error("Failed to generate file location");
-      return false;
-    }
-    const { fileLocation } = fileLocationResultObject.object;
-    const { description } = await runtime.getService(import_core23.ServiceType.IMAGE_DESCRIPTION).describeImage(fileLocation);
-    runtime.messageManager.createMemory({
-      userId: message.agentId,
-      agentId: message.agentId,
-      roomId: message.roomId,
-      content: {
-        text: description
-      }
-    });
-    callback({
-      text: description
-    });
-    return true;
-  },
-  examples: [
-    [
-      {
-        user: "{{user1}}",
-        content: {
-          text: "Can you describe this image for me?"
-        }
-      },
-      {
-        user: "{{user2}}",
-        content: {
-          text: "Let me analyze this image for you...",
-          action: "DESCRIBE_IMAGE"
-        }
-      },
-      {
-        user: "{{user2}}",
-        content: {
-          text: "I see an orange tabby cat sitting on a windowsill. The cat appears to be relaxed and looking out the window at birds flying by. The lighting suggests it's a sunny afternoon."
-        }
-      }
-    ],
-    [
-      {
-        user: "{{user1}}",
-        content: {
-          text: "What's in this picture?"
-        }
-      },
-      {
-        user: "{{user2}}",
-        content: {
-          text: "I'll take a look at that image...",
-          action: "DESCRIBE_IMAGE"
-        }
-      },
-      {
-        user: "{{user2}}",
-        content: {
-          text: "The image shows a modern kitchen with stainless steel appliances. There's a large island counter in the center with marble countertops. The cabinets are white with sleek handles, and there's pendant lighting hanging above the island."
-        }
-      }
-    ],
-    [
-      {
-        user: "{{user1}}",
-        content: {
-          text: "Could you tell me what this image depicts?"
-        }
-      },
-      {
-        user: "{{user2}}",
-        content: {
-          text: "I'll describe this image for you...",
-          action: "DESCRIBE_IMAGE"
-        }
-      },
-      {
-        user: "{{user2}}",
-        content: {
-          text: "This is a scenic mountain landscape at sunset. The peaks are snow-capped and reflected in a calm lake below. The sky is painted in vibrant oranges and purples, with a few wispy clouds catching the last rays of sunlight."
-        }
-      }
-    ]
-  ]
 };
 
 // src/index.ts
@@ -25687,8 +25685,6 @@ function createNodePlugin() {
 }
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
-  SpeechService,
-  TranscriptionService,
   createNodePlugin
 });
 /*! Bundled license information:
