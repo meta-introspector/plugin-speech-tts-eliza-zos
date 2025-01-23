@@ -8,11 +8,9 @@
     "exports": {
         "./package.json": "./package.json",
         ".": {
-            "import": {
-                "@elizaos/source": "./src/index.ts",
-                "types": "./dist/index.d.ts",
-                "default": "./dist/index.js"
-            }
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.js",
+            "require": "./dist/index.cjs"
         }
     },
     "files": [
@@ -39,8 +37,8 @@
         "tsup": "8.3.5"
     },
     "scripts": {
-        "build": "tsup --format esm --dts",
-        "dev": "tsup --format esm --dts --watch",
+        "build": "tsup --format esm,cjs --dts",
+        "dev": "tsup --format esm,cjs --dts --watch",
         "lint": "eslint --fix  --cache .",
         "postinstall": "node scripts/postinstall.js"
     },
