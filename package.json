@@ -1,5 +1,5 @@
 {
-    "name": "@elizaos/plugin-node",
+    "name": "@elizaos-plugins/service-speech-tts",
     "version": "0.1.8+build.1",
     "type": "module",
     "main": "dist/index.js",
@@ -102,21 +102,6 @@
                 "type": "string"
             },
             "VITS_MODEL": {
-                "type": "string"
-            },
-            "AWS_ACCESS_KEY_ID": {
-                "type": "string"
-            },
-            "AWS_SECRET_ACCESS_KEY": {
-                "type": "string"
-            },
-            "AWS_REGION": {
-                "type": "string"
-            },
-            "AWS_S3_BUCKET": {
-                "type": "string"
-            },
-            "AWS_S3_UPLOAD_PATH": {
                 "type": "string"
             }
         }
