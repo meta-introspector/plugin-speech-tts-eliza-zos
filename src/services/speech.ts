@@ -41,46 +41,64 @@ async function getVoiceSettings(runtime: IAgentRuntime) {
     const useVits = !hasElevenLabs;
 
     // Get voice settings from character card
-    const voiceSettings = runtime.character.settings?.voice;
-    const elevenlabsSettings = voiceSettings?.elevenlabs;
+    const vitsSettings = runtime.character.settings?.voice
+    const elevenlabsSettings = runtime.character.settings?.voice?.elevenlabs;
 
     elizaLogger.debug("Voice settings:", {
         hasElevenLabs,
         useVits,
-        voiceSettings,
+        vitsSettings,
         elevenlabsSettings,
     });
 
     return {
         elevenlabsVoiceId:
             elevenlabsSettings?.voiceId ||
-            runtime.getSetting("ELEVENLABS_VOICE_ID"),
+            runtime.getSetting("ELEVENLABS_VOICE_ID") || 
+            "21m00Tcm4TlvDq8ikWAM",
         elevenlabsModel:
             elevenlabsSettings?.model ||
             runtime.getSetting("ELEVENLABS_MODEL_ID") ||
-            "eleven_monolingual_v1",
+            "eleven_monolingual_v2",
         elevenlabsStability:
             elevenlabsSettings?.stability ||
             runtime.getSetting("ELEVENLABS_VOICE_STABILITY") ||
             "0.5",
-        // ... other ElevenLabs settings ...
+        elevenlabsStreamingLatency:
+            runtime.getSetting("ELEVENLABS_OPTIMIZE_STREAMING_LATENCY") ||
+            "4",
+        elevenlabsOutputFormat:
+            runtime.getSetting("ELEVENLABS_OUTPUT_FORMAT") || "pcm_16000",
+        elevenlabsSimilarity: runtime.getSetting("ELEVENLABS_VOICE_SIMILARITY_BOOST") || "0.9",
+        elevenlabsStyle: runtime.getSetting("ELEVENLABS_VOICE_STYLE") || "0.66",
+        elevenlabsSpeakerBoost: runtime.getSetting("ELEVENLABS_VOICE_USE_SPEAKER_BOOST") || "false",
         vitsVoice:
-            voiceSettings?.model ||
-            voiceSettings?.url ||
+            vitsSettings?.model ||
+            vitsSettings?.url ||
             runtime.getSetting("VITS_VOICE") ||
             "en_US-hfc_female-medium",
-        elevenlabsUrl: runtime.getSetting("ELEVENLABS_XI_API_URL") || "https://api.elevenlabs.io/v1",
+        elevenlabsUrl: runtime.getSetting("ELEVENLABS_XI_API_URL") || "https://api.elevenlabs.io",
         useVits,
     };
 }
 
 async function textToSpeech(runtime: IAgentRuntime, text: string) {
     await validateNodeConfig(runtime);
-    const { elevenlabsVoiceId, elevenlabsUrl } = await getVoiceSettings(runtime);
+    const { 
+        elevenlabsVoiceId,
+        elevenlabsModel,
+        elevenlabsUrl, 
+        elevenlabsStreamingLatency, 
+        elevenlabsOutputFormat,
+        elevenlabsSimilarity,
+        elevenlabsStability,
+        elevenlabsStyle,
+        elevenlabsSpeakerBoost,
+    } = await getVoiceSettings(runtime);
 
     try {
         const response = await fetch(
-            `${elevenlabsUrl}/text-to-speech/${elevenlabsVoiceId}/stream?optimize_streaming_latency=${runtime.getSetting("ELEVENLABS_OPTIMIZE_STREAMING_LATENCY")}&output_format=${runtime.getSetting("ELEVENLABS_OUTPUT_FORMAT")}`,
+            `${elevenlabsUrl}/v1/text-to-speech/${elevenlabsVoiceId}/stream?optimize_streaming_latency=${elevenlabsStreamingLatency}&output_format=${elevenlabsOutputFormat}`,
             {
                 method: "POST",
                 headers: {
@@ -88,19 +106,13 @@ async function textToSpeech(runtime: IAgentRuntime, text: string) {
                     "xi-api-key": runtime.getSetting("ELEVENLABS_XI_API_KEY"),
                 },
                 body: JSON.stringify({
-                    model_id: runtime.getSetting("ELEVENLABS_MODEL_ID"),
+                    model_id: elevenlabsModel,
                     text: text,
                     voice_settings: {
-                        similarity_boost: runtime.getSetting(
-                            "ELEVENLABS_VOICE_SIMILARITY_BOOST"
-                        ),
-                        stability: runtime.getSetting(
-                            "ELEVENLABS_VOICE_STABILITY"
-                        ),
-                        style: runtime.getSetting("ELEVENLABS_VOICE_STYLE"),
-                        use_speaker_boost: runtime.getSetting(
-                            "ELEVENLABS_VOICE_USE_SPEAKER_BOOST"
-                        ),
+                        similarity_boost: elevenlabsSimilarity,
+                        stability: elevenlabsStability,
+                        style: elevenlabsStyle,
+                        use_speaker_boost: elevenlabsSpeakerBoost,
                     },
                 }),
             }
