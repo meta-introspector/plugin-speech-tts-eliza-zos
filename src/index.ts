@@ -1,12 +1,12 @@
-export * from "./services/index.ts";
+export * from "./services/index.js";
 
 import { Plugin } from "@elizaos/core";
 
-import { describeImage } from "./actions/describe-image.ts";
+import { describeImage } from "./actions/describe-image.js";
 import {
     SpeechService,
     TranscriptionService,
-} from "./services/index.ts";
+} from "./services/index.js";
 
 export const speechTTS: Plugin = {
         name: "default",
