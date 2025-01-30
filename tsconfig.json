@@ -1,9 +1,11 @@
 {
     "extends": "../core/tsconfig.json",
     "compilerOptions": {
+        "module": "NodeNext",
         "outDir": "dist",
         "rootDir": "src",
-        "types": ["node"]
+        "types": ["node"],
+        "esModuleInterop": true,
     },
     "include": ["src/**/*.ts", "src/**/*.d.ts"]
 }

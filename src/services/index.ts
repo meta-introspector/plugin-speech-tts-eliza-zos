@@ -1,5 +1,5 @@
-import { SpeechService } from "./speech.ts";
-import { TranscriptionService } from "./transcription.ts";
+import { SpeechService } from "./speech.js";
+import { TranscriptionService } from "./transcription.js";
 
 export {
     SpeechService,

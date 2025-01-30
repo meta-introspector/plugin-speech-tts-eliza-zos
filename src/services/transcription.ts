@@ -58,6 +58,12 @@ export class TranscriptionService
     async initialize(_runtime: IAgentRuntime): Promise<void> {
         this.runtime = _runtime;
 
+        const openaiBaseURL = this.runtime.getSetting(
+            "OPENAI_API_URL"
+        )
+
+        elizaLogger.log("OPENAI_API_URL", openaiBaseURL)
+
         // 1) Check character settings
         let chosenProvider: TranscriptionProvider | null = null;
         const charSetting = this.runtime.character?.settings?.transcription;
@@ -71,7 +77,7 @@ export class TranscriptionService
         } else if (charSetting === TranscriptionProvider.OpenAI) {
             const openaiKey = this.runtime.getSetting("OPENAI_API_KEY");
             if (openaiKey) {
-                this.openai = new OpenAI({ apiKey: openaiKey });
+                this.openai = new OpenAI({ apiKey: openaiKey, baseURL: openaiBaseURL });
                 chosenProvider = TranscriptionProvider.OpenAI;
             }
         } else if (charSetting === TranscriptionProvider.Local) {
@@ -100,7 +106,7 @@ export class TranscriptionService
                             const openaiKey =
                                 this.runtime.getSetting("OPENAI_API_KEY");
                             if (openaiKey) {
-                                this.openai = new OpenAI({ apiKey: openaiKey });
+                                this.openai = new OpenAI({ apiKey: openaiKey, baseURL: openaiBaseURL});
                                 chosenProvider = TranscriptionProvider.OpenAI;
                             }
                         }
@@ -121,7 +127,7 @@ export class TranscriptionService
             } else {
                 const openaiKey = this.runtime.getSetting("OPENAI_API_KEY");
                 if (openaiKey) {
-                    this.openai = new OpenAI({ apiKey: openaiKey });
+                    this.openai = new OpenAI({ apiKey: openaiKey, baseURL: openaiBaseURL });
                     chosenProvider = TranscriptionProvider.OpenAI;
                 } else {
                     chosenProvider = TranscriptionProvider.Local;

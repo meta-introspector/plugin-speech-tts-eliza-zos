@@ -2,9 +2,9 @@ import { PassThrough } from "stream";
 import { Readable } from "node:stream";
 import { ReadableStream } from "node:stream/web";
 import { IAgentRuntime, ISpeechService, ServiceType } from "@elizaos/core";
-import { getWavHeader } from "./audioUtils.ts";
+import { getWavHeader } from "./audioUtils.js";
 import { Service } from "@elizaos/core";
-import { validateNodeConfig } from "../environment.ts";
+import { validateNodeConfig } from "../environment.js";
 import * as Echogarden from "echogarden";
 import { elizaLogger } from "@elizaos/core";
 
@@ -69,17 +69,18 @@ async function getVoiceSettings(runtime: IAgentRuntime) {
             voiceSettings?.url ||
             runtime.getSetting("VITS_VOICE") ||
             "en_US-hfc_female-medium",
+        elevenlabsUrl: runtime.getSetting("ELEVENLABS_XI_API_URL") || "https://api.elevenlabs.io/v1",
         useVits,
     };
 }
 
 async function textToSpeech(runtime: IAgentRuntime, text: string) {
     await validateNodeConfig(runtime);
-    const { elevenlabsVoiceId } = await getVoiceSettings(runtime);
+    const { elevenlabsVoiceId, elevenlabsUrl } = await getVoiceSettings(runtime);
 
     try {
         const response = await fetch(
-            `https://api.elevenlabs.io/v1/text-to-speech/${elevenlabsVoiceId}/stream?optimize_streaming_latency=${runtime.getSetting("ELEVENLABS_OPTIMIZE_STREAMING_LATENCY")}&output_format=${runtime.getSetting("ELEVENLABS_OUTPUT_FORMAT")}`,
+            `${elevenlabsUrl}/text-to-speech/${elevenlabsVoiceId}/stream?optimize_streaming_latency=${runtime.getSetting("ELEVENLABS_OPTIMIZE_STREAMING_LATENCY")}&output_format=${runtime.getSetting("ELEVENLABS_OUTPUT_FORMAT")}`,
             {
                 method: "POST",
                 headers: {
