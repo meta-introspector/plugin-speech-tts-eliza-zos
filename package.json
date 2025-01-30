@@ -47,7 +47,7 @@
             "OPENAI_API_KEY": {
                 "type": "string"
             },
-            "OPENAI_BASE_URL": {
+            "OPENAI_API_URL": {
                 "type": "string",
                 "default": "https://api.openai.com"
             },

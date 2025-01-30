@@ -59,7 +59,7 @@ export class TranscriptionService
         this.runtime = _runtime;
 
         const openaiBaseURL = this.runtime.getSetting(
-            "OPENAI_BASE_URL"
+            "OPENAI_API_URL"
         ) || null;
 
         // 1) Check character settings
