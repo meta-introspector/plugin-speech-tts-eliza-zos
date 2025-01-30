@@ -77,7 +77,7 @@ async function getVoiceSettings(runtime: IAgentRuntime) {
             vitsSettings?.url ||
             runtime.getSetting("VITS_VOICE") ||
             "en_US-hfc_female-medium",
-        elevenlabsUrl: runtime.getSetting("ELEVENLABS_XI_API_URL") || "https://api.elevenlabs.io",
+        elevenlabsUrl: runtime.getSetting("ELEVENLABS_XI_API_URL") || "https://api.elevenlabs.io/v1",
         useVits,
     };
 }
@@ -108,7 +108,7 @@ async function textToSpeech(runtime: IAgentRuntime, text: string) {
         elizaLogger.log("Eleven Labs speaker boost:", elevenlabsSpeakerBoost);
 
         const response = await fetch(
-            `${elevenlabsUrl}/v1/text-to-speech/${elevenlabsVoiceId}/stream?optimize_streaming_latency=${elevenlabsStreamingLatency}&output_format=${elevenlabsOutputFormat}`,
+            `${elevenlabsUrl}/text-to-speech/${elevenlabsVoiceId}/stream?optimize_streaming_latency=${elevenlabsStreamingLatency}&output_format=${elevenlabsOutputFormat}`,
             {
                 method: "POST",
                 headers: {

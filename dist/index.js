@@ -73,7 +73,7 @@ async function getVoiceSettings(runtime) {
     elevenlabsStyle: runtime.getSetting("ELEVENLABS_VOICE_STYLE") || "0.66",
     elevenlabsSpeakerBoost: runtime.getSetting("ELEVENLABS_VOICE_USE_SPEAKER_BOOST") || "false",
     vitsVoice: (vitsSettings == null ? void 0 : vitsSettings.model) || (vitsSettings == null ? void 0 : vitsSettings.url) || runtime.getSetting("VITS_VOICE") || "en_US-hfc_female-medium",
-    elevenlabsUrl: runtime.getSetting("ELEVENLABS_XI_API_URL") || "https://api.elevenlabs.io",
+    elevenlabsUrl: runtime.getSetting("ELEVENLABS_XI_API_URL") || "https://api.elevenlabs.io/v1",
     useVits
   };
 }
@@ -101,7 +101,7 @@ async function textToSpeech(runtime, text) {
     elizaLogger.log("Eleven Labs style:", elevenlabsStyle);
     elizaLogger.log("Eleven Labs speaker boost:", elevenlabsSpeakerBoost);
     const response = await fetch(
-      `${elevenlabsUrl}/v1/text-to-speech/${elevenlabsVoiceId}/stream?optimize_streaming_latency=${elevenlabsStreamingLatency}&output_format=${elevenlabsOutputFormat}`,
+      `${elevenlabsUrl}/text-to-speech/${elevenlabsVoiceId}/stream?optimize_streaming_latency=${elevenlabsStreamingLatency}&output_format=${elevenlabsOutputFormat}`,
       {
         method: "POST",
         headers: {
