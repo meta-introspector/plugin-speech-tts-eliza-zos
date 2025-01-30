@@ -60,7 +60,9 @@ export class TranscriptionService
 
         const openaiBaseURL = this.runtime.getSetting(
             "OPENAI_API_URL"
-        ) || null;
+        )
+
+        elizaLogger.log("OPENAI_API_URL", openaiBaseURL)
 
         // 1) Check character settings
         let chosenProvider: TranscriptionProvider | null = null;
