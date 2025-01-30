@@ -2,7 +2,6 @@ export * from "./services/index.js";
 
 import { Plugin } from "@elizaos/core";
 
-import { describeImage } from "./actions/describe-image.js";
 import {
     SpeechService,
     TranscriptionService,
@@ -15,7 +14,7 @@ export const speechTTS: Plugin = {
             new SpeechService(),
             new TranscriptionService(),
         ],
-        actions: [describeImage],
+        actions: [],
     }
     
 export default speechTTS;

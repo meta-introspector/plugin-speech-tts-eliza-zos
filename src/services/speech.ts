@@ -59,7 +59,7 @@ async function getVoiceSettings(runtime: IAgentRuntime) {
         elevenlabsModel:
             elevenlabsSettings?.model ||
             runtime.getSetting("ELEVENLABS_MODEL_ID") ||
-            "eleven_monolingual_v2",
+            "eleven_multilingual_v2",
         elevenlabsStability:
             elevenlabsSettings?.stability ||
             runtime.getSetting("ELEVENLABS_VOICE_STABILITY") ||
@@ -106,7 +106,7 @@ async function textToSpeech(runtime: IAgentRuntime, text: string) {
         elizaLogger.log("Eleven Labs stability:", elevenlabsStability);
         elizaLogger.log("Eleven Labs style:", elevenlabsStyle);
         elizaLogger.log("Eleven Labs speaker boost:", elevenlabsSpeakerBoost);
-        
+
         const response = await fetch(
             `${elevenlabsUrl}/v1/text-to-speech/${elevenlabsVoiceId}/stream?optimize_streaming_latency=${elevenlabsStreamingLatency}&output_format=${elevenlabsOutputFormat}`,
             {

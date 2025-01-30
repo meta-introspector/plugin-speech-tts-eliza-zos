@@ -65,7 +65,7 @@ async function getVoiceSettings(runtime) {
   });
   return {
     elevenlabsVoiceId: (elevenlabsSettings == null ? void 0 : elevenlabsSettings.voiceId) || runtime.getSetting("ELEVENLABS_VOICE_ID") || "21m00Tcm4TlvDq8ikWAM",
-    elevenlabsModel: (elevenlabsSettings == null ? void 0 : elevenlabsSettings.model) || runtime.getSetting("ELEVENLABS_MODEL_ID") || "eleven_monolingual_v2",
+    elevenlabsModel: (elevenlabsSettings == null ? void 0 : elevenlabsSettings.model) || runtime.getSetting("ELEVENLABS_MODEL_ID") || "eleven_multilingual_v2",
     elevenlabsStability: (elevenlabsSettings == null ? void 0 : elevenlabsSettings.stability) || runtime.getSetting("ELEVENLABS_VOICE_STABILITY") || "0.5",
     elevenlabsStreamingLatency: runtime.getSetting("ELEVENLABS_OPTIMIZE_STREAMING_LATENCY") || "4",
     elevenlabsOutputFormat: runtime.getSetting("ELEVENLABS_OUTPUT_FORMAT") || "pcm_16000",
@@ -649,147 +649,6 @@ var TranscriptionService = class extends Service2 {
   }
 };
 
-// src/actions/describe-image.ts
-import {
-  composeContext,
-  generateObject,
-  ModelClass,
-  elizaLogger as elizaLogger3,
-  ServiceType as ServiceType3
-} from "@elizaos/core";
-
-// src/templates.ts
-var getFileLocationTemplate = `
-{{recentMessages}}
-
-extract the file location from the users message or the attachment in the message history that they are referring to.
-your job is to infer the correct attachment based on the recent messages, the users most recent message, and the attachments in the message
-image attachments are the result of the users uploads, or images you have created.
-only respond with the file location, no other text.
-typically the file location is in the form of a URL or a file path.
-
-\`\`\`json
-{
-    "fileLocation": "file location text goes here"
-}
-\`\`\`
-`;
-
-// src/types.ts
-import { z } from "zod";
-var FileLocationResultSchema = z.object({
-  fileLocation: z.string().min(1)
-});
-function isFileLocationResult(obj) {
-  return FileLocationResultSchema.safeParse(obj).success;
-}
-
-// src/actions/describe-image.ts
-var describeImage = {
-  name: "DESCRIBE_IMAGE",
-  similes: ["DESCRIBE_PICTURE", "EXPLAIN_PICTURE", "EXPLAIN_IMAGE"],
-  validate: async (_runtime, _message) => {
-    return true;
-  },
-  description: "Describe an image",
-  handler: async (runtime, message, state, _options, callback) => {
-    const getFileLocationContext = composeContext({
-      state,
-      template: getFileLocationTemplate
-    });
-    const fileLocationResultObject = await generateObject({
-      runtime,
-      context: getFileLocationContext,
-      modelClass: ModelClass.SMALL,
-      schema: FileLocationResultSchema,
-      stop: ["\n"]
-    });
-    if (!isFileLocationResult(fileLocationResultObject == null ? void 0 : fileLocationResultObject.object)) {
-      elizaLogger3.error("Failed to generate file location");
-      return false;
-    }
-    const { fileLocation } = fileLocationResultObject.object;
-    const { description } = await runtime.getService(ServiceType3.IMAGE_DESCRIPTION).describeImage(fileLocation);
-    runtime.messageManager.createMemory({
-      userId: message.agentId,
-      agentId: message.agentId,
-      roomId: message.roomId,
-      content: {
-        text: description
-      }
-    });
-    callback({
-      text: description
-    });
-    return true;
-  },
-  examples: [
-    [
-      {
-        user: "{{user1}}",
-        content: {
-          text: "Can you describe this image for me?"
-        }
-      },
-      {
-        user: "{{user2}}",
-        content: {
-          text: "Let me analyze this image for you...",
-          action: "DESCRIBE_IMAGE"
-        }
-      },
-      {
-        user: "{{user2}}",
-        content: {
-          text: "I see an orange tabby cat sitting on a windowsill. The cat appears to be relaxed and looking out the window at birds flying by. The lighting suggests it's a sunny afternoon."
-        }
-      }
-    ],
-    [
-      {
-        user: "{{user1}}",
-        content: {
-          text: "What's in this picture?"
-        }
-      },
-      {
-        user: "{{user2}}",
-        content: {
-          text: "I'll take a look at that image...",
-          action: "DESCRIBE_IMAGE"
-        }
-      },
-      {
-        user: "{{user2}}",
-        content: {
-          text: "The image shows a modern kitchen with stainless steel appliances. There's a large island counter in the center with marble countertops. The cabinets are white with sleek handles, and there's pendant lighting hanging above the island."
-        }
-      }
-    ],
-    [
-      {
-        user: "{{user1}}",
-        content: {
-          text: "Could you tell me what this image depicts?"
-        }
-      },
-      {
-        user: "{{user2}}",
-        content: {
-          text: "I'll describe this image for you...",
-          action: "DESCRIBE_IMAGE"
-        }
-      },
-      {
-        user: "{{user2}}",
-        content: {
-          text: "This is a scenic mountain landscape at sunset. The peaks are snow-capped and reflected in a calm lake below. The sky is painted in vibrant oranges and purples, with a few wispy clouds catching the last rays of sunlight."
-        }
-      }
-    ]
-  ]
-};
-
 // src/index.ts
 var speechTTS = {
   name: "default",
@@ -798,7 +657,7 @@ var speechTTS = {
     new SpeechService(),
     new TranscriptionService()
   ],
-  actions: [describeImage]
+  actions: []
 };
 var index_default = speechTTS;
 export {
