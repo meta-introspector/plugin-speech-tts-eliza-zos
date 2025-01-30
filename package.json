@@ -39,8 +39,7 @@
     "scripts": {
         "build": "tsup --format esm,cjs --dts",
         "dev": "tsup --format esm,cjs --dts --watch",
-        "lint": "eslint --fix  --cache .",
-        "postinstall": "node scripts/postinstall.js"
+        "lint": "eslint --fix  --cache ."
     },
     "agentConfig": {
         "pluginType": "elizaos:client:1.0.0",
