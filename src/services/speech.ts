@@ -44,7 +44,7 @@ async function getVoiceSettings(runtime: IAgentRuntime) {
     const vitsSettings = runtime.character.settings?.voice
     const elevenlabsSettings = runtime.character.settings?.voice?.elevenlabs;
 
-    elizaLogger.debug("Voice settings:", {
+    elizaLogger.log("Voice settings:", {
         hasElevenLabs,
         useVits,
         vitsSettings,
@@ -83,7 +83,7 @@ async function getVoiceSettings(runtime: IAgentRuntime) {
 }
 
 async function textToSpeech(runtime: IAgentRuntime, text: string) {
-    await validateNodeConfig(runtime);
+    // await validateNodeConfig(runtime);
     const { 
         elevenlabsVoiceId,
         elevenlabsModel,
@@ -97,6 +97,16 @@ async function textToSpeech(runtime: IAgentRuntime, text: string) {
     } = await getVoiceSettings(runtime);
 
     try {
+        elizaLogger.log("sending request to Eleven Labs API");
+        elizaLogger.log("Eleven Labs voice ID:", elevenlabsVoiceId);
+        elizaLogger.log("Eleven Labs model ID:", elevenlabsModel);
+        elizaLogger.log("Eleven Labs streaming latency:", elevenlabsStreamingLatency);
+        elizaLogger.log("Eleven Labs output format:", elevenlabsOutputFormat);
+        elizaLogger.log("Eleven Labs similarity boost:", elevenlabsSimilarity);
+        elizaLogger.log("Eleven Labs stability:", elevenlabsStability);
+        elizaLogger.log("Eleven Labs style:", elevenlabsStyle);
+        elizaLogger.log("Eleven Labs speaker boost:", elevenlabsSpeakerBoost);
+        
         const response = await fetch(
             `${elevenlabsUrl}/v1/text-to-speech/${elevenlabsVoiceId}/stream?optimize_streaming_latency=${elevenlabsStreamingLatency}&output_format=${elevenlabsOutputFormat}`,
             {
@@ -158,12 +168,10 @@ async function textToSpeech(runtime: IAgentRuntime, text: string) {
             });
 
             if (
-                runtime
-                    .getSetting("ELEVENLABS_OUTPUT_FORMAT")
-                    .startsWith("pcm_")
+                elevenlabsOutputFormat.startsWith("pcm_")
             ) {
                 const sampleRate = parseInt(
-                    runtime.getSetting("ELEVENLABS_OUTPUT_FORMAT").substring(4)
+                    elevenlabsOutputFormat.substring(4)
                 );
                 const withHeader = prependWavHeader(
                     readable,
@@ -291,6 +299,7 @@ export class SpeechService extends Service implements ISpeechService {
 
     async generate(runtime: IAgentRuntime, text: string): Promise<Readable> {
         try {
+            elizaLogger.log("Generating speech for text:", text);
             const { useVits } = await getVoiceSettings(runtime);
 
             if (useVits || !runtime.getSetting("ELEVENLABS_XI_API_KEY")) {

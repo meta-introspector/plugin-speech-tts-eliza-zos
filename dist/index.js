@@ -28,63 +28,6 @@ function getWavHeader(audioLength, sampleRate, channelCount = 1, bitsPerSample =
 
 // src/services/speech.ts
 import { Service } from "@elizaos/core";
-
-// src/environment.ts
-import { z } from "zod";
-var nodeEnvSchema = z.object({
-  OPENAI_API_KEY: z.string().min(1, "OpenAI API key is required"),
-  // Core settings
-  ELEVENLABS_XI_API_KEY: z.string().optional(),
-  // All other settings optional with defaults
-  ELEVENLABS_MODEL_ID: z.string().optional(),
-  ELEVENLABS_VOICE_ID: z.string().optional(),
-  ELEVENLABS_VOICE_STABILITY: z.string().optional(),
-  ELEVENLABS_VOICE_SIMILARITY_BOOST: z.string().optional(),
-  ELEVENLABS_VOICE_STYLE: z.string().optional(),
-  ELEVENLABS_VOICE_USE_SPEAKER_BOOST: z.string().optional(),
-  ELEVENLABS_OPTIMIZE_STREAMING_LATENCY: z.string().optional(),
-  ELEVENLABS_OUTPUT_FORMAT: z.string().optional(),
-  VITS_VOICE: z.string().optional(),
-  VITS_MODEL: z.string().optional()
-});
-async function validateNodeConfig(runtime) {
-  var _a;
-  try {
-    const voiceSettings = (_a = runtime.character.settings) == null ? void 0 : _a.voice;
-    const elevenlabs = voiceSettings == null ? void 0 : voiceSettings.elevenlabs;
-    const config = {
-      OPENAI_API_KEY: runtime.getSetting("OPENAI_API_KEY") || process.env.OPENAI_API_KEY,
-      ELEVENLABS_XI_API_KEY: runtime.getSetting("ELEVENLABS_XI_API_KEY") || process.env.ELEVENLABS_XI_API_KEY,
-      // Use character card settings first, fall back to env vars, then defaults
-      ...runtime.getSetting("ELEVENLABS_XI_API_KEY") && {
-        ELEVENLABS_MODEL_ID: (elevenlabs == null ? void 0 : elevenlabs.model) || process.env.ELEVENLABS_MODEL_ID || "eleven_monolingual_v1",
-        ELEVENLABS_VOICE_ID: (elevenlabs == null ? void 0 : elevenlabs.voiceId) || process.env.ELEVENLABS_VOICE_ID,
-        ELEVENLABS_VOICE_STABILITY: (elevenlabs == null ? void 0 : elevenlabs.stability) || process.env.ELEVENLABS_VOICE_STABILITY || "0.5",
-        ELEVENLABS_VOICE_SIMILARITY_BOOST: (elevenlabs == null ? void 0 : elevenlabs.similarityBoost) || process.env.ELEVENLABS_VOICE_SIMILARITY_BOOST || "0.75",
-        ELEVENLABS_VOICE_STYLE: (elevenlabs == null ? void 0 : elevenlabs.style) || process.env.ELEVENLABS_VOICE_STYLE || "0",
-        ELEVENLABS_VOICE_USE_SPEAKER_BOOST: (elevenlabs == null ? void 0 : elevenlabs.useSpeakerBoost) || process.env.ELEVENLABS_VOICE_USE_SPEAKER_BOOST || "true",
-        ELEVENLABS_OPTIMIZE_STREAMING_LATENCY: process.env.ELEVENLABS_OPTIMIZE_STREAMING_LATENCY || "0",
-        ELEVENLABS_OUTPUT_FORMAT: process.env.ELEVENLABS_OUTPUT_FORMAT || "pcm_16000"
-      },
-      // VITS settings
-      VITS_VOICE: (voiceSettings == null ? void 0 : voiceSettings.model) || process.env.VITS_VOICE,
-      VITS_MODEL: process.env.VITS_MODEL
-      // AWS settings (only include if presen
-    };
-    return nodeEnvSchema.parse(config);
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      const errorMessages = error.errors.map((err) => `${err.path.join(".")}: ${err.message}`).join("\n");
-      throw new Error(
-        `Node configuration validation failed:
-${errorMessages}`
-      );
-    }
-    throw error;
-  }
-}
-
-// src/services/speech.ts
 import * as Echogarden from "echogarden";
 import { elizaLogger } from "@elizaos/core";
 function prependWavHeader(readable, audioLength, sampleRate, channelCount = 1, bitsPerSample = 16) {
@@ -114,7 +57,7 @@ async function getVoiceSettings(runtime) {
   const useVits = !hasElevenLabs;
   const vitsSettings = (_a = runtime.character.settings) == null ? void 0 : _a.voice;
   const elevenlabsSettings = (_c = (_b = runtime.character.settings) == null ? void 0 : _b.voice) == null ? void 0 : _c.elevenlabs;
-  elizaLogger.debug("Voice settings:", {
+  elizaLogger.log("Voice settings:", {
     hasElevenLabs,
     useVits,
     vitsSettings,
@@ -136,7 +79,6 @@ async function getVoiceSettings(runtime) {
 }
 async function textToSpeech(runtime, text) {
   var _a;
-  await validateNodeConfig(runtime);
   const {
     elevenlabsVoiceId,
     elevenlabsModel,
@@ -149,6 +91,15 @@ async function textToSpeech(runtime, text) {
     elevenlabsSpeakerBoost
   } = await getVoiceSettings(runtime);
   try {
+    elizaLogger.log("sending request to Eleven Labs API");
+    elizaLogger.log("Eleven Labs voice ID:", elevenlabsVoiceId);
+    elizaLogger.log("Eleven Labs model ID:", elevenlabsModel);
+    elizaLogger.log("Eleven Labs streaming latency:", elevenlabsStreamingLatency);
+    elizaLogger.log("Eleven Labs output format:", elevenlabsOutputFormat);
+    elizaLogger.log("Eleven Labs similarity boost:", elevenlabsSimilarity);
+    elizaLogger.log("Eleven Labs stability:", elevenlabsStability);
+    elizaLogger.log("Eleven Labs style:", elevenlabsStyle);
+    elizaLogger.log("Eleven Labs speaker boost:", elevenlabsSpeakerBoost);
     const response = await fetch(
       `${elevenlabsUrl}/v1/text-to-speech/${elevenlabsVoiceId}/stream?optimize_streaming_latency=${elevenlabsStreamingLatency}&output_format=${elevenlabsOutputFormat}`,
       {
@@ -199,9 +150,9 @@ async function textToSpeech(runtime, text) {
           });
         }
       });
-      if (runtime.getSetting("ELEVENLABS_OUTPUT_FORMAT").startsWith("pcm_")) {
+      if (elevenlabsOutputFormat.startsWith("pcm_")) {
         const sampleRate = parseInt(
-          runtime.getSetting("ELEVENLABS_OUTPUT_FORMAT").substring(4)
+          elevenlabsOutputFormat.substring(4)
         );
         const withHeader = prependWavHeader(
           readable,
@@ -308,6 +259,7 @@ var SpeechService = class _SpeechService extends Service {
   }
   async generate(runtime, text) {
     try {
+      elizaLogger.log("Generating speech for text:", text);
       const { useVits } = await getVoiceSettings(runtime);
       if (useVits || !runtime.getSetting("ELEVENLABS_XI_API_KEY")) {
         return await generateVitsAudio(runtime, text);
@@ -724,9 +676,9 @@ typically the file location is in the form of a URL or a file path.
 `;
 
 // src/types.ts
-import { z as z2 } from "zod";
-var FileLocationResultSchema = z2.object({
-  fileLocation: z2.string().min(1)
+import { z } from "zod";
+var FileLocationResultSchema = z.object({
+  fileLocation: z.string().min(1)
 });
 function isFileLocationResult(obj) {
   return FileLocationResultSchema.safeParse(obj).success;
