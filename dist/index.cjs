@@ -397,8 +397,9 @@ var TranscriptionService = class extends import_core5.Service {
     var _a, _b;
     this.runtime = _runtime;
     const openaiBaseURL = this.runtime.getSetting(
-      "OPENAI_BASE_URL"
-    ) || null;
+      "OPENAI_API_URL"
+    );
+    import_core4.elizaLogger.log("OPENAI_API_URL", openaiBaseURL);
     let chosenProvider = null;
     const charSetting = (_b = (_a = this.runtime.character) == null ? void 0 : _a.settings) == null ? void 0 : _b.transcription;
     if (charSetting === import_core4.TranscriptionProvider.Deepgram) {

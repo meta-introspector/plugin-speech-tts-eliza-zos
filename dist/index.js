@@ -362,8 +362,9 @@ var TranscriptionService = class extends Service2 {
     var _a, _b;
     this.runtime = _runtime;
     const openaiBaseURL = this.runtime.getSetting(
-      "OPENAI_BASE_URL"
-    ) || null;
+      "OPENAI_API_URL"
+    );
+    elizaLogger2.log("OPENAI_API_URL", openaiBaseURL);
     let chosenProvider = null;
     const charSetting = (_b = (_a = this.runtime.character) == null ? void 0 : _a.settings) == null ? void 0 : _b.transcription;
     if (charSetting === TranscriptionProvider.Deepgram) {
