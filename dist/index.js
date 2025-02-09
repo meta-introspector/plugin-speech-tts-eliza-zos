@@ -661,9 +661,6 @@ var speechTTS = {
 };
 var index_default = speechTTS;
 export {
-  SpeechService,
-  TranscriptionService,
-  index_default as default,
-  speechTTS
+  index_default as default
 };
 //# sourceMappingURL=index.js.map
