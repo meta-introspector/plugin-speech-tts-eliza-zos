@@ -48,51 +48,64 @@
       },
       "OPENAI_API_URL": {
         "type": "string",
-        "default": "https://api.openai.com"
+        "default": "https://api.openai.com",
+        "optional": true
       },
       "ELEVENLABS_XI_API_URL": {
         "type": "string",
-        "default": "https://api.elevenlabs.io/v1"
+        "default": "https://api.elevenlabs.io/v1",
+        "optional": true
       },
       "ELEVENLABS_XI_API_KEY": {
-        "type": "string"
+        "type": "string",
+        "optional": true
       },
       "ELEVENLABS_MODEL_ID": {
         "type": "string",
-        "default": "eleven_monolingual_v1"
+        "default": "eleven_monolingual_v1",
+        "optional": true
       },
       "ELEVENLABS_VOICE_ID": {
-        "type": "string"
+        "type": "string",
+        "optional": true
       },
       "ELEVENLABS_VOICE_STABILITY": {
         "type": "string",
-        "default": "0.5"
+        "default": "0.5",
+        "optional": true
       },
       "ELEVENLABS_VOICE_SIMILARITY_BOOST": {
         "type": "string",
-        "default": "0.75"
+        "default": "0.75",
+        "optional": true
       },
       "ELEVENLABS_VOICE_STYLE": {
         "type": "string",
-        "default": "0"
+        "default": "0",
+        "optional": true
       },
       "ELEVENLABS_VOICE_USE_SPEAKER_BOOST": {
         "type": "string",
-        "default": "true"
+        "default": "true",
+        "optional": true
       },
       "ELEVENLABS_OPTIMIZE_STREAMING_LATENCY": {
         "type": "string",
-        "default": "0"
+        "default": "0",
+        "optional": true
       },
       "ELEVENLABS_OUTPUT_FORMAT": {
         "type": "string",
-        "default": "pcm_16000"
+        "default": "pcm_16000",
+        "optional": true
       },
       "VITS_VOICE": {
-        "type": "string"
+        "type": "string",
+        "optional": true
       },
       "VITS_MODEL": {
-        "type": "string"
+        "type": "string",
+        "optional": true
       }
     }
   }
