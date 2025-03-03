@@ -23,6 +23,7 @@
     "tsup.config.ts"
   ],
   "dependencies": {
+    "@elizaos/core": "workspace:*",
     "@deepgram/sdk": "^3.9.0",
     "@hapi/shot": "^6.0.1",
     "@types/hapi": "^18.0.14",
