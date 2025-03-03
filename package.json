@@ -24,6 +24,8 @@
   ],
   "dependencies": {
     "@deepgram/sdk": "^3.9.0",
+    "@hapi/shot": "^6.0.1",
+    "@types/hapi": "^18.0.14",
     "echogarden": "2.0.14",
     "formdata-node": "^6.0.3",
     "nodejs-whisper": "0.2.6",
