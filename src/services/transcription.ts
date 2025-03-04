@@ -343,8 +343,8 @@ export class TranscriptionService
         const response = await this.deepgram.listen.prerecorded.transcribeFile(
             buffer,
             {
-                model: "nova-2",
-                language: "en-US",
+                model: "nova-3",
+                language: "en",
                 smart_format: true,
             }
         );
