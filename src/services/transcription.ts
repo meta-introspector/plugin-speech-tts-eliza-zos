@@ -69,12 +69,14 @@ export class TranscriptionService
         const charSetting = this.runtime.character?.settings?.transcription;
 
         if (charSetting === TranscriptionProvider.Deepgram) {
+            console.log("Deepgram is the chosen provider");
             const deepgramKey = this.runtime.getSetting("DEEPGRAM_API_KEY");
             if (deepgramKey) {
                 this.deepgram = createClient(deepgramKey);
                 chosenProvider = TranscriptionProvider.Deepgram;
             }
         } else if (charSetting === TranscriptionProvider.OpenAI) {
+            console.log("OpenAI is the chosen provider");
             const openaiKey = this.runtime.getSetting("OPENAI_API_KEY");
             if (openaiKey) {
                 this.openai = new OpenAI({ apiKey: openaiKey, baseURL: openaiBaseURL });
