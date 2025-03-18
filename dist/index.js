@@ -328,6 +328,7 @@ var TranscriptionService = class extends Service2 {
     let chosenProvider = null;
     const charSetting = (_b = (_a = this.runtime.character) == null ? void 0 : _a.settings) == null ? void 0 : _b.transcription;
     if (charSetting === TranscriptionProvider.Deepgram) {
+      console.log()
       const deepgramKey = this.runtime.getSetting("DEEPGRAM_API_KEY");
       if (deepgramKey) {
         this.deepgram = createClient(deepgramKey);
