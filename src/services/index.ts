@@ -1,7 +1,4 @@
-import { SpeechService } from "./speech.js";
-import { TranscriptionService } from "./transcription.js";
+import { SpeechService } from './speech.js';
+import { TranscriptionService } from './transcription.js';
 
-export {
-    SpeechService,
-    TranscriptionService,
-};
+export { SpeechService, TranscriptionService };
